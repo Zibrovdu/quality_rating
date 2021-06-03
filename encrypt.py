@@ -1,0 +1,159 @@
+import base64
+import datetime
+import io
+import os
+import random
+
+import numpy as np
+import pandas as pd
+
+import log_writer as lw
+import processing
+
+staff_info_df = pd.read_excel(r'assets\Список сотрудников ЦОКР.xlsx')
+
+
+def parse_contents_encrypt(contents, filename):
+    content_type, content_string = contents.split(',')
+    decoded = base64.b64decode(content_string)
+    try:
+        content_df = pd.read_excel(io.BytesIO(decoded))
+        content_df = processing.load_df(df=content_df)
+
+        return content_df
+    except Exception as e:
+        lw.log_writer(log_msg=f'При загрузки файла "{filename}" возникла ошибка: {e}')
+        content_df = processing.no_data()
+
+        return content_df
+
+
+def get_quantity_tasks(df, pers_code):
+    if len(df[df.person_code == pers_code]['Номер'].unique()) == 0:
+        return 0
+    elif len(df[df.person_code == pers_code]['Номер'].unique()) * 10 / 100 < 0.6:
+        return 1
+    else:
+        return round(len(df[df.person_code == pers_code]['Номер'].unique()) * 10 / 100)
+
+
+def data_table(data_df, staff_encrypt_df, filename):
+    try:
+        data_df['Описание'].fillna('Описание отсутствует', inplace=True)
+        data_df['Время выполнения'] = pd.to_timedelta(data_df['Фактическое время выполнения'] - data_df['Дата/время '
+                                                                                                        'регистрации'])
+        data_df['Время выполнения'] = data_df['Время выполнения'].astype(str)
+
+        result_df = data_df.merge(staff_encrypt_df, left_on='Кем решен (сотрудник)', right_on='ФИО', how='left')
+        lw.log_writer(log_msg=f'Файл "{filename}" успешно загружен')
+
+        return result_df, 'Файл успешно загружен'
+    except Exception as e:
+        lw.log_writer(log_msg=f'Ошибка при загрузки файла: "{filename}": {e}')
+        lw.log_writer(log_msg=f'Неверный формат файла "{filename}"')
+        result_df = processing.no_data()
+
+        return result_df, "Ошибка при загрузки файла"
+
+
+def staff_table(staff_df):
+    df_num = pd.DataFrame([x for x in range(1, len(staff_df) + 1)], columns=['person_code'])
+    df_num['sort_code'] = np.random.choice(list(df_num.person_code), len(staff_df))
+    df_num.sort_values('sort_code', inplace=True)
+    df_num.reset_index(inplace=True)
+    df_num.drop(['sort_code', 'index'], axis=1, inplace=True)
+
+    result_df = pd.concat([df_num, staff_df], axis=1)
+
+    return result_df
+
+
+def write_key_file(staff_encrypt_df):
+    current_date = datetime.datetime.now()
+    key = str(random.randint(100000, 999999))
+
+    filename_date = '_'.join([current_date.strftime('%d-%m-%Y'), key])
+    filepath = 'key_files/'
+
+    dataframe_to_write = staff_encrypt_df
+
+    if os.path.exists(filepath):
+        filename_key_file = f"key_{filename_date}"
+        writer = pd.ExcelWriter(filepath + filename_key_file + '.xlsx')
+        dataframe_to_write.to_excel(writer, index=False, sheet_name=filename_key_file)
+        workbook = writer.book
+        worksheet = writer.sheets[filename_key_file]
+        writer.save()
+    else:
+        os.mkdir(filepath)
+        filename_key_file = f"key_{filename_date}"
+        writer = pd.ExcelWriter(filepath + filename_key_file + '.xlsx')
+        dataframe_to_write.to_excel(writer, index=False, sheet_name=filename_key_file)
+        workbook = writer.book
+        worksheet = writer.sheets[filename_key_file]
+        writer.save()
+
+    return filename_key_file
+
+
+def create_result_table(data_df):
+    df = pd.DataFrame(columns=['person_code', 'region', 'quantity_tasks', 'tasks_numbers'])
+
+    for index, code in enumerate(data_df[data_df.person_code.notna()].person_code.unique()):
+        region = data_df[data_df.person_code == code]['Регион'].unique()[0]
+        quantity_tasks = get_quantity_tasks(df=data_df, pers_code=code)
+        num_tasks = random.choices(list(data_df[data_df.person_code == code]['Номер'].unique()), k=quantity_tasks)
+        df.loc[index] = code, region, quantity_tasks, num_tasks
+    return df
+
+
+def transform_result_table(filename_key_file, result_table, staff_df):
+    df = pd.DataFrame(columns=[filename_key_file, 'person_code', 'region', 'tasks_numbers'])
+
+    count = 0
+    for j in range(len(result_table)):
+        for i in range(len(result_table.tasks_numbers.loc[j])):
+            df.loc[count] = 'x', result_table.person_code.loc[j], result_table.region.loc[j], \
+                            result_table.tasks_numbers.loc[j][i]
+            count += 1
+
+    regions_dict = dict()
+    for i in list(staff_df['Регион'].unique()):
+        regions_dict[i] = [x for x in staff_df['Регион'].unique() if x != i]
+    df['Проверяющий регион'] = df.region.apply(lambda x: random.choice(regions_dict[x]))
+
+    staff_regions_dict = dict()
+    for i in list(staff_df['Регион'].unique()):
+        staff_regions_dict[i] = [x for x in staff_df[staff_df['Регион'] == i]['ФИО'].unique()]
+    df['Проверяющий сотрудник'] = df['Проверяющий регион'].apply(lambda x: random.choice(staff_regions_dict[x]))
+
+    return df
+
+
+def create_total_table(result_table, data_df):
+    def may_has_files(x):
+        has_files_texts = ['скриншот', 'файл во вложении', '[img]', 'вложен', 'скрин', 'прикладываю', 'прилага', '.doc',
+                           '.jpg', '.png', 'текст письма: описание отсутствует (пустое тело письма).', 'приложен',
+                           'тема письма: тема отсутствует. текст письма: описание отсутствует (пустое тело письма).']
+        for phrase in has_files_texts:
+            if phrase in x.lower():
+                return 1
+        return 0
+
+    result_table = result_table.merge(data_df[['Номер', 'Описание', 'Описание решения', 'Количество уточнений',
+                                               'Количество возобновлений', 'Время выполнения']],
+                                      how='left',
+                                      left_on='tasks_numbers',
+                                      right_on='Номер')
+    result_table.drop('Номер',
+                      axis=1,
+                      inplace=True)
+    result_table['Есть вложения?'] = result_table['Описание'].apply(lambda x: may_has_files(x))
+
+    result_table.rename(columns=dict(person_code='Код сотрудника',
+                                     region='Регион сотрудника',
+                                     tasks_numbers='Номер задачи'),
+                        inplace=True)
+    result_table.drop('Номер задачи', axis=1, inplace=True)
+
+    return result_table
