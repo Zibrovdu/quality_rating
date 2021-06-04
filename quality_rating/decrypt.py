@@ -3,8 +3,8 @@ import io
 
 import pandas as pd
 
-import log_writer as lw
-import processing
+import quality_rating.log_writer as lw
+import quality_rating.processing as processing
 
 
 def parse_contents_decrypt(contents, filename):
@@ -24,8 +24,7 @@ def parse_contents_decrypt(contents, filename):
 
 def load_data(df, filename):
     try:
-        df_key = pd.read_excel(f'key_files/{df.columns[0]}.xlsx')
-        print(df.columns[0])
+        df_key = pd.read_excel(f'key_files\\{df.columns[0]}.xlsx')
         total_decrypt_df = df.merge(df_key[['person_code', 'ФИО']], how='left', left_on='Код сотрудника',
                                     right_on='person_code')
         total_decrypt_df.drop([df.columns[0], 'person_code'], axis=1, inplace=True)
@@ -33,6 +32,7 @@ def load_data(df, filename):
                                              'Проверяющий сотрудник', 'Описание', 'Описание решения',
                                              'Количество уточнений', 'Количество возобновлений', 'Время выполнения',
                                              'Есть вложения?']]
+        total_decrypt_df.sort_values(['Проверяющий регион', 'Проверяющий сотрудник'], ascending=True, inplace=True)
         lw.log_writer(log_msg=f'Файл "{filename}" успешно расшифрован')
         return total_decrypt_df, "Файл успешно расшифрован"
     except Exception as e:

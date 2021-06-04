@@ -7,8 +7,8 @@ import random
 import numpy as np
 import pandas as pd
 
-import log_writer as lw
-import processing
+import quality_rating.log_writer as lw
+import quality_rating.processing as processing
 
 staff_info_df = pd.read_excel(r'assets\Список сотрудников ЦОКР.xlsx')
 
@@ -155,5 +155,12 @@ def create_total_table(result_table, data_df):
                                      tasks_numbers='Номер задачи'),
                         inplace=True)
     result_table.drop('Номер задачи', axis=1, inplace=True)
+    result_table.sort_values(['Проверяющий регион', 'Проверяющий сотрудник'], ascending=True, inplace=True)
+    result_table['Max. время , ч'] = 24
+    result_table['Max. кол-во возобновлений'] = 4
+    result_table = result_table[[result_table.columns[0], 'Код сотрудника', 'Регион сотрудника', 'Проверяющий регион',
+                                 'Проверяющий сотрудник', 'Описание', 'Описание решения', 'Количество уточнений',
+                                 'Количество возобновлений', 'Max. кол-во возобновлений',
+                                 'Время выполнения', 'Max. время , ч', 'Есть вложения?']]
 
     return result_table
