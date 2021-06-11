@@ -137,8 +137,8 @@ def create_total_table(result_table, data_df):
                            'тема письма: тема отсутствует. текст письма: описание отсутствует (пустое тело письма).']
         for phrase in has_files_texts:
             if phrase in x.lower():
-                return 1
-        return 0
+                return 'Да'
+        return 'Нет'
 
     result_table = result_table.merge(data_df[['Номер', 'Описание', 'Описание решения', 'Количество уточнений',
                                                'Количество возобновлений', 'Время выполнения']],
@@ -154,13 +154,16 @@ def create_total_table(result_table, data_df):
                                      region='Регион сотрудника',
                                      tasks_numbers='Номер задачи'),
                         inplace=True)
+    result_table.rename(columns={'Количество возобновлений': 'Количество возобновлений (max 4)',
+                                 'Время выполнения': 'Время выполнения (max 24 ч.)'},
+                        inplace=True)
     result_table.drop('Номер задачи', axis=1, inplace=True)
     result_table.sort_values(['Проверяющий регион', 'Проверяющий сотрудник'], ascending=True, inplace=True)
-    result_table['Max. время , ч'] = 24
-    result_table['Max. кол-во возобновлений'] = 4
-    result_table = result_table[[result_table.columns[0], 'Код сотрудника', 'Регион сотрудника', 'Проверяющий регион',
-                                 'Проверяющий сотрудник', 'Описание', 'Описание решения', 'Количество уточнений',
-                                 'Количество возобновлений', 'Max. кол-во возобновлений',
-                                 'Время выполнения', 'Max. время , ч', 'Есть вложения?']]
+    # result_table['Max. время , ч'] = 24
+    # result_table['Max. кол-во возобновлений'] = 4
+    # result_table = result_table[[result_table.columns[0], 'Код сотрудника', 'Регион сотрудника', 'Проверяющий регион',
+    #                              'Проверяющий сотрудник', 'Описание', 'Описание решения', 'Количество уточнений',
+    #                              'Количество возобновлений', 'Max. кол-во возобновлений',
+    #                              'Время выполнения', 'Max. время , ч', 'Есть вложения?']]
 
     return result_table

@@ -57,6 +57,7 @@ def register_callbacks(app):
 
     @app.callback(Output('table_decrypt', 'data'),
                   Output('table_decrypt', 'columns'),
+                  # Output('table_decrypt', 'style_data_conditional'),
                   Output('error_msg', 'children'),
                   Output('error_msg', 'style'),
                   Input('upload-data_decrypt', 'contents'),
@@ -73,6 +74,7 @@ def register_callbacks(app):
                                         filename=filename)[1]
 
                 style = processing.set_styles(msg=msg)
+                # print(decrypted_df["Итоговая оценка"].max())
 
                 return decrypted_df.to_dict('records'), [{'name': i, 'id': i} for i in decrypted_df.columns], msg, style
 
@@ -82,7 +84,12 @@ def register_callbacks(app):
             style = processing.set_styles(msg=msg)
 
             decrypted_df = processing.no_data()
+            #
+            # style_data_conditional = [
+            #     {'if': {'filter_query': f'{{Итоговая оценка}} > {decrypted_df["Итоговая оценка"].max()}', },
+            #      'backgroundColor': 'red'
+            #      }]
 
-            return decrypted_df.to_dict('records'), [{'name': i, 'id': i} for i in decrypted_df.columns], msg, style
+            return decrypted_df.to_dict('records'), [{'name': i, 'id': i} for i in decrypted_df.columns], msg, style,
         else:
             return dash.no_update, dash.no_update, dash.no_update, dash.no_update

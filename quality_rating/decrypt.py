@@ -28,13 +28,40 @@ def load_data(df, filename):
         total_decrypt_df = df.merge(df_key[['person_code', 'ФИО']], how='left', left_on='Код сотрудника',
                                     right_on='person_code')
         total_decrypt_df.drop([df.columns[0], 'person_code'], axis=1, inplace=True)
-        total_decrypt_df = total_decrypt_df[['ФИО', 'Код сотрудника', 'Регион сотрудника', 'Проверяющий регион',
-                                             'Проверяющий сотрудник', 'Описание', 'Описание решения',
-                                             'Количество уточнений', 'Количество возобновлений', 'Время выполнения',
-                                             'Есть вложения?']]
-        total_decrypt_df.sort_values(['Проверяющий регион', 'Проверяющий сотрудник'], ascending=True, inplace=True)
+        if 'Решение ' and 'Время решения' and 'Кол-во возвратов' in df.columns:
+            total_decrypt_df = total_decrypt_df[['ФИО', 'Код сотрудника', 'Регион сотрудника', 'Проверяющий регион',
+                                                 'Проверяющий сотрудник', 'Описание', 'Описание решения',
+                                                 'Количество уточнений', 'Количество возобновлений (max 4)',
+                                                 'Время выполнения (max 24 ч.)', 'Есть вложения?', 'Решение',
+                                                 'Время решения', 'Кол-во возвратов']]
+        # total_decrypt_df['Итоговая оценка'] = \
+        #     total_decrypt_df['Решение'] + total_decrypt_df['Время решения'] + total_decrypt_df['Кол-во возвратов']
+        #
+        # total_decrypt_df_pivot = total_decrypt_df.pivot_table(index=['ФИО'],
+        #                                                       values=['Решение', 'Время решения', 'Кол-во возвратов',
+        #                                                               'Итоговая оценка'],
+        #                                                       aggfunc='sum')
+        # total_decrypt_df_pivot = total_decrypt_df_pivot[['Решение', 'Время решения', 'Кол-во возвратов',
+        #                                                  'Итоговая оценка']]
+        total_decrypt_df_pivot = total_decrypt_df.pivot_table(index=['ФИО'],
+                                                              values=['Решение', 'Время решения', 'Кол-во возвратов'],
+                                                              aggfunc='mean')
+
+        total_decrypt_df_pivot = total_decrypt_df_pivot[['Решение', 'Время решения', 'Кол-во возвратов']]
+
+        for column_name in total_decrypt_df_pivot.columns:
+            total_decrypt_df_pivot[column_name] = total_decrypt_df_pivot[column_name].apply(lambda x: round(x, 2))
+
+        total_decrypt_df_pivot['Итоговая оценка'] = total_decrypt_df_pivot[['Решение', 'Время решения',
+                                                                            'Кол-во возвратов']].sum(axis=1)
+        total_decrypt_df_pivot['Итоговая оценка'] = total_decrypt_df_pivot['Итоговая оценка'].\
+            apply(lambda x: round(x, 2))
+
+        total_decrypt_df_pivot = total_decrypt_df_pivot.reset_index()
+
+        # total_decrypt_df.sort_values(['Проверяющий регион', 'Проверяющий сотрудник'], ascending=True, inplace=True)
         lw.log_writer(log_msg=f'Файл "{filename}" успешно расшифрован')
-        return total_decrypt_df, "Файл успешно расшифрован"
+        return total_decrypt_df_pivot, "Файл успешно расшифрован"
     except Exception as e:
         lw.log_writer(log_msg=f'Ошибка при расшифровки файла: "{filename}": {e}')
         lw.log_writer(log_msg=f'Не найден ключевой файл для расшифровки файла "{filename}" или неверный формат файла '
