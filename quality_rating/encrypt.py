@@ -159,11 +159,7 @@ def create_total_table(result_table, data_df):
                         inplace=True)
     result_table.drop('Номер задачи', axis=1, inplace=True)
     result_table.sort_values(['Проверяющий регион', 'Проверяющий сотрудник'], ascending=True, inplace=True)
-    # result_table['Max. время , ч'] = 24
-    # result_table['Max. кол-во возобновлений'] = 4
-    # result_table = result_table[[result_table.columns[0], 'Код сотрудника', 'Регион сотрудника', 'Проверяющий регион',
-    #                              'Проверяющий сотрудник', 'Описание', 'Описание решения', 'Количество уточнений',
-    #                              'Количество возобновлений', 'Max. кол-во возобновлений',
-    #                              'Время выполнения', 'Max. время , ч', 'Есть вложения?']]
+    result_table[['Решение', 'Время решения', 'Кол-во возвратов']] = ''
+    print(result_table.columns)
 
     return result_table
