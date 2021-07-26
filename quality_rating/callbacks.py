@@ -26,9 +26,12 @@ def register_callbacks(app):
                 data_df = encrypt.data_table(data_df=incoming_df,
                                              staff_encrypt_df=staff_encrypt_df,
                                              filename=filename)[0]
+
                 msg = encrypt.data_table(data_df=incoming_df,
                                          staff_encrypt_df=staff_encrypt_df,
                                          filename=filename)[1]
+
+                data_df = encrypt.get_difficult_level(df=data_df)
 
                 result_df = encrypt.create_result_table(data_df=data_df)
 
@@ -57,7 +60,6 @@ def register_callbacks(app):
 
     @app.callback(Output('table_decrypt', 'data'),
                   Output('table_decrypt', 'columns'),
-                  # Output('table_decrypt', 'style_data_conditional'),
                   Output('error_msg', 'children'),
                   Output('error_msg', 'style'),
                   Input('upload-data_decrypt', 'contents'),
@@ -69,6 +71,11 @@ def register_callbacks(app):
             if len(incoming_df) > 0:
                 decrypted_df = decrypt.load_data(df=incoming_df,
                                                  filename=filename)[0]
+
+                count_mean_difficult_level_df = decrypt.count_mean_difficult_level(df=decrypted_df)
+
+                decrypted_df = decrypt.make_decrypted_table(mean_diff_level_df=count_mean_difficult_level_df,
+                                                            decrypt_df=decrypted_df)
 
                 msg = decrypt.load_data(df=incoming_df,
                                         filename=filename)[1]

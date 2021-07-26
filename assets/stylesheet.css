@@ -2,12 +2,12 @@
     height: 75px;
     width/max-width: 1800px;
     margin: 0 auto;
-    background-color: #1959d1;
+    background-color: #9c4b28;
     border-radius: 2px;
 }
 
 .banner h2{
-    color: rgb(255, 255, 255);
+    color: #fffaf6;
     padding-top: 10px;
     margin-left: 2%;
     display: inline-block;
@@ -41,16 +41,16 @@ table2 {
 }
 th {
   font-weight: normal;
-  color: #039;
+  color: #9c4b28;
 
   padding: 10px 8px;
 }
 td {
-  color: #669;
+  color: #e4815d;
   padding: 9px 8px;
   transition: .3s linear;
 }
-tr:hover td {color: #33ccff;}
+tr:hover td {color: #fdb195;}
 
 .table_budget {
     width: 0%;
@@ -122,7 +122,7 @@ media screen and (max-width: 650px) {
 }
 
 .button {
-    background-color: #008CBA; /* Green */
+
     border: none;
     border-radius: 12px;
     color: white;
@@ -132,6 +132,8 @@ media screen and (max-width: 650px) {
     display: inline-block;
     font-size: 16px;
     margin-right:5px;
+    color: #e4815d;
+    border: 1px solid #e4815d;
 }
 .button:hover {
     box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
@@ -327,6 +329,7 @@ media screen and (max-width: 650px) {
 
 .labels_encrypt {
     padding: 10px;
+    color: #9c4b28;
 }
 
 .export {
@@ -338,17 +341,17 @@ media screen and (max-width: 650px) {
       content:'Сохранить в формате excel';
       visibility: visible;
       position: absolute;
-      color: #1959d1;
-      border: 1px solid #1959d1;
+      color: #e4815d;
+      border: 1px solid #e4815d;
       border-radius: 5px;
       padding: 0 30px;
       margin: 0 0 10px -75px;
-
 }
 
 .btn_load {
     width: 17%;
     padding: 0 30px;
+
 }
 
 .table_all {
@@ -358,4 +361,9 @@ media screen and (max-width: 650px) {
 .table_staff {
     width: 50%;
     margin: auto;
+}
+
+.btn_loaders {
+    color: #e4815d;
+    border: 1px solid #e4815d;
 }

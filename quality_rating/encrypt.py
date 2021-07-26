@@ -140,8 +140,8 @@ def create_total_table(result_table, data_df):
                 return 'Да'
         return 'Нет'
 
-    result_table = result_table.merge(data_df[['Номер', 'Описание', 'Описание решения', 'Количество уточнений',
-                                               'Количество возобновлений', 'Время выполнения']],
+    result_table = result_table.merge(data_df[['Номер', 'Описание', 'Аналитические признаки', 'Описание решения',
+                                               'Количество уточнений', 'Количество возобновлений', 'Время выполнения']],
                                       how='left',
                                       left_on='tasks_numbers',
                                       right_on='Номер')
@@ -155,11 +155,23 @@ def create_total_table(result_table, data_df):
                                      tasks_numbers='Номер задачи'),
                         inplace=True)
     result_table.rename(columns={'Количество возобновлений': 'Количество возобновлений (max 4)',
-                                 'Время выполнения': 'Время выполнения (max 24 ч.)'},
+                                 'Время выполнения': 'Время выполнения (max 24 ч.)',
+                                 'Аналитические признаки': 'Сложность'
+                                 },
                         inplace=True)
     result_table.drop('Номер задачи', axis=1, inplace=True)
     result_table.sort_values(['Проверяющий регион', 'Проверяющий сотрудник'], ascending=True, inplace=True)
     result_table[['Решение', 'Время решения', 'Кол-во возвратов']] = ''
-    print(result_table.columns)
 
     return result_table
+
+
+def get_difficult_level(df):
+    df['Аналитические признаки'] = df['Аналитические признаки'].fillna('')
+    df['Аналитические признаки'] = df['Аналитические признаки'].apply(lambda x: x.split(','))
+    df['Аналитические признаки'] = df['Аналитические признаки'].apply(
+        lambda row: [item for item in row if item.strip().isdigit()])
+    df['Аналитические признаки'] = df['Аналитические признаки'].apply(
+        lambda x: x[len(x) - 1] if len(x) > 0 else 'Не указано')
+
+    return df

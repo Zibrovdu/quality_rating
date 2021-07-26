@@ -9,7 +9,7 @@ import quality_rating.processing as processing
 def serve_layout():
     staff_oit_stsb_df = pd.read_excel(r'assets/Список сотрудников ЦОКР.xlsx')
 
-    tab_selected_style = dict(backgroundColor='#ebecf1',
+    tab_selected_style = dict(backgroundColor='#ffd1bb',
                               fontWeight='bold')
     layout = html.Div([
         html.Div([
@@ -36,7 +36,7 @@ def serve_layout():
                         html.Br(),
                         html.Br(),
                         dcc.Upload(
-                            html.Button('Загрузить файл с данными'),
+                            html.Button('Загрузить файл с данными', className='btn_loaders'),
                             id='upload-data',
                             className='btn_load'),
                         html.Br(),
@@ -80,7 +80,7 @@ def serve_layout():
                         html.Br(),
                         html.Br(),
                         dcc.Upload(
-                            html.Button('Загрузить файл с данными'),
+                            html.Button('Загрузить файл с данными', className='btn_loaders'),
                             id='upload-data_decrypt',
                             className='btn_load'),
                         html.Br(),
@@ -128,9 +128,9 @@ def serve_layout():
 
                     ],
                     selected_style=tab_selected_style)
-        ], colors=dict(border='#ebecf1',
-                       primary='#222780',
-                       background='#33ccff')),
+        ], colors=dict(border='#9c4b28',
+                       primary='#9c4b28',
+                       background='#e4815d')),
         html.Div([
             html.Div([
                 html.Div([
