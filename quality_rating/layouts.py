@@ -1,13 +1,13 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
-import pandas as pd
 
 import quality_rating.processing as processing
+from quality_rating.load_cfg import table, conn_string
 
 
 def serve_layout():
-    staff_oit_stsb_df = pd.read_excel(r'assets/Список сотрудников ЦОКР.xlsx')
+    staff_oit_stsb_df = processing.load_staff(table_name=table, connection_string=conn_string)
 
     tab_selected_style = dict(backgroundColor='#ffd1bb',
                               fontWeight='bold')
@@ -49,6 +49,7 @@ def serve_layout():
                                 id="loading-1",
                                 type="cube",
                                 fullscreen=True,
+                                color='#e4815d',
                                 children=html.Div([
                                     dash_table.DataTable(id='table_encrypt',
                                                          export_format='xlsx',
@@ -92,6 +93,7 @@ def serve_layout():
                             dcc.Loading(
                                 id="loading-2",
                                 type="cube",
+                                color='#e4815d',
                                 fullscreen=True,
                                 children=html.Div([
                                     dash_table.DataTable(id='table_decrypt',

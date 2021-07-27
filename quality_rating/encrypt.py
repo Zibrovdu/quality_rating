@@ -9,8 +9,9 @@ import pandas as pd
 
 import quality_rating.log_writer as lw
 import quality_rating.processing as processing
+from quality_rating.load_cfg import table, conn_string
 
-staff_info_df = pd.read_excel(r'assets\Список сотрудников ЦОКР.xlsx')
+staff_info_df = processing.load_staff(table_name=table, connection_string=conn_string)
 
 
 def parse_contents_encrypt(contents, filename):

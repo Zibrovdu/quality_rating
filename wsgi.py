@@ -1,4 +1,4 @@
 from app import server as app
 
 if __name__ == "__main__":
-    app.run(host='10.201.77.89', port=5001)
+    app.run(host='0.0.0.0', port=3255)
