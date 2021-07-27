@@ -6,3 +6,7 @@
 /__pycache__
 /.idea
 *.rkz
+*.ini
+/qr_venv
+/.ssh
+/quality_rating/__pycache__
