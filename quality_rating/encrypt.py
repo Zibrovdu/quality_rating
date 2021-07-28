@@ -43,7 +43,9 @@ def data_table(data_df, staff_encrypt_df, filename):
         data_df['Описание'].fillna('Описание отсутствует', inplace=True)
         data_df['Время выполнения'] = pd.to_timedelta(data_df['Фактическое время выполнения'] - data_df['Дата/время '
                                                                                                         'регистрации'])
-        data_df['Время выполнения'] = data_df['Время выполнения'].astype(str)
+        data_df['Время выполнения'] = data_df['Время выполнения'].apply(lambda x: round(x.total_seconds()/3600))
+        data_df['Кем решен (сотрудник)'].fillna('Отсутствует', inplace=True)
+        data_df['Кем решен (сотрудник)'] = data_df['Кем решен (сотрудник)'].apply(lambda x: x.title())
 
         result_df = data_df.merge(staff_encrypt_df, left_on='Кем решен (сотрудник)', right_on='ФИО', how='left')
         lw.log_writer(log_msg=f'Файл "{filename}" успешно загружен')
@@ -156,7 +158,7 @@ def create_total_table(result_table, data_df):
                                      tasks_numbers='Номер задачи'),
                         inplace=True)
     result_table.rename(columns={'Количество возобновлений': 'Количество возобновлений (max 4)',
-                                 'Время выполнения': 'Время выполнения (max 24 ч.)',
+                                 'Время выполнения': 'Время выполнения, ч (max 24 ч.)',
                                  'Аналитические признаки': 'Сложность'
                                  },
                         inplace=True)

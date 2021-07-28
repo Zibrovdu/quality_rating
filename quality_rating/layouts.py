@@ -7,10 +7,12 @@ from quality_rating.load_cfg import table, conn_string
 
 
 def serve_layout():
-    staff_oit_stsb_df = processing.load_staff(table_name=table, connection_string=conn_string)
+    staff_oit_stsb_df = processing.load_staff(table_name=table,
+                                              connection_string=conn_string)
 
     filter_query_options = [{'label': i, 'value': i} for i in staff_oit_stsb_df['Регион'].unique()]
-    filter_query_options.insert(0, dict(label='Все регионы', value='Все регионы'))
+    filter_query_options.insert(0, dict(label='Все регионы',
+                                        value='Все регионы'))
 
     tab_selected_style = dict(backgroundColor='#dfe49b',
                               fontWeight='bold')
@@ -35,12 +37,14 @@ def serve_layout():
                             требованиями к формату файлов можно ознакомиться, зайдя в меню "О программе"''',
                             className='labels_encrypt'),
                         html.Label(
-                            '''ВАЖНО!!! Пожалуйста не удаляйте столбец № 1 из подготовленного программой файла.''',
+                            '''ВАЖНО!!! Пожалуйста не меняйте структуру сформированного файла (не удаляйте, не 
+                            переименовывайте столбцы и не меняйте их порядок).''',
                             className='labels_encrypt'),
                         html.Br(),
                         html.Br(),
                         dcc.Upload(
-                            html.Button('Загрузить файл с данными', className='btn_loaders'),
+                            html.Button('Загрузить файл с данными',
+                                        className='btn_loaders'),
                             id='upload-data',
                             className='btn_load'),
 
@@ -94,26 +98,34 @@ def serve_layout():
                                                                          ),
                                                          style_cell_conditional=[
                                                              {'if': {'column_id': 'Описание'}, 'width': '20%'},
-                                                             {'if': {'column_id': 'Описание решения'}, 'width': '20%'}]
+                                                             {'if': {'column_id': 'Описание решения'}, 'width': '20%'}],
                                                          ),
-                                ], id="loading-output-1", className='table_all')
+                                ],
+                                    id="loading-output-1",
+                                    className='table_all')
                             ),
-                        ], id='output-data-upload'),
+                        ],
+                            id='output-data-upload'),
                     ],
                     selected_style=tab_selected_style),
             dcc.Tab(label='Расшифровка файла',
                     value='decrypt',
                     children=[
-                        html.Label('''Загрузите файл с выполненными заявками. С порядком работы с программой, а также 
-                        требованиями к формату файлов можно ознакомиться, зайдя в меню "О программе"''',
+                        html.Label('''Загрузите файл сформированный ранее в котором проставлены оценки. Оценки (целое 
+                        число от 0 до 4) должны быть проставлены в каждой ячейке трех крайних столбцов (Решение, Время 
+                        решения, Кол-во возвратов). Ввод других значений, а также пропуски не допускаются. С порядком 
+                        работы с программой, а также требованиями к формату файлов можно ознакомиться, зайдя в меню "О 
+                        программе"''',
                                    className='labels_encrypt'),
                         html.Label(
-                            '''ВАЖНО!!! Пожалуйста не удаляйте столбец № 1 из подготовленного программой файла.''',
+                            '''ВАЖНО!!! Пожалуйста не меняйте структуру сформированного файла (не удаляйте, не 
+                            переименовывайте столбцы и не меняйте их порядок)''',
                             className='labels_encrypt'),
                         html.Br(),
                         html.Br(),
                         dcc.Upload(
-                            html.Button('Загрузить файл с данными', className='btn_loaders'),
+                            html.Button('Загрузить файл с данными',
+                                        className='btn_loaders'),
                             id='upload-data_decrypt',
                             className='btn_load'),
                         html.Br(),
@@ -139,8 +151,8 @@ def serve_layout():
                                     id="loading-output-2",
                                     className='table_all')
                             ),
-                        ], id='output-data-upload_decrypt'),
-
+                        ],
+                            id='output-data-upload_decrypt'),
                     ],
                     selected_style=tab_selected_style),
             dcc.Tab(label='Сотрудники ОИТ СЦБ',
@@ -158,9 +170,9 @@ def serve_layout():
                                                                  height='auto'),
 
                                                  ),
-                        ], id='output-data-upload_info',
+                        ],
+                            id='output-data-upload_info',
                             className='table_staff'),
-
                     ],
                     selected_style=tab_selected_style)
         ], colors=dict(border='#55761a',
@@ -194,7 +206,5 @@ def serve_layout():
             id='modal-1',
             className='modal_about modal--l'),
         html.Script(src='assets/js/main.js'),
-
     ])
-
     return layout
