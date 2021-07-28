@@ -57,12 +57,6 @@ def serve_layout():
                                                          style_cell=dict(textAlign='center',
                                                                          whiteSpace='normal',
                                                                          height='auto'),
-                                                         style_cell_conditional=[
-                                                             {'if': {'column_id': 'Описание'},
-                                                              'width': '30%'},
-                                                             {'if': {'column_id': 'Описание решения'},
-                                                              'width': '30%'},
-                                                         ],
                                                          ),
                                 ], id="loading-output-1", className='table_all')
                             ),

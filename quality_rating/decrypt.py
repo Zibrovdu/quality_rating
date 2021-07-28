@@ -25,7 +25,7 @@ def parse_contents_decrypt(contents, filename):
 
 def load_data(df, filename):
     try:
-        df_key = pd.read_excel(f'key_files\\{df.columns[0]}.xlsx')
+        df_key = pd.read_excel(f'key_files/{df.columns[0]}.xlsx')
         decrypt_df = df.merge(df_key[['person_code', 'ФИО']],
                               how='left',
                               left_on='Код сотрудника',
@@ -79,8 +79,6 @@ def make_decrypted_table(mean_diff_level_df, decrypt_df):
     decrypt_df_pivot['Итоговая оценка'] = decrypt_df_pivot['Итоговая оценка'].apply(lambda x: round(x, 2))
 
     decrypt_df_pivot = decrypt_df_pivot.reset_index()
-
-    # decrypt_df.sort_values(['Проверяющий регион', 'Проверяющий сотрудник'], ascending=True, inplace=True)
 
     mean_diff_level_df = mean_diff_level_df.T.reset_index().rename(columns={'index': 'ФИО'})
     decrypt_df_pivot = decrypt_df_pivot.merge(mean_diff_level_df, on='ФИО', how='left')
