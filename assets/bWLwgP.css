@@ -449,16 +449,16 @@ table {
   width: 100%;
   text-align: center;
   border-collapse: collapse;
-  border-top: 7px solid #e4815d;
-  border-bottom: 7px solid #e4815d;
+  border-top: 7px solid #55761a;
+  border-bottom: 7px solid #55761a;
   padding-right: 1px;
 }
 th {
   font-size: 13px;
   font-weight: normal;
   background: #e8edff;
-  border-right: 1px solid #e4815d;
-  border-left: 1px solid #e4815d;
+  border-right: 1px solid #55761a;
+  border-left: 1px solid #55761a;
   color: #039;
   padding: 8px;
   text-align: center;

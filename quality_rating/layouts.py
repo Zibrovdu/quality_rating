@@ -9,7 +9,10 @@ from quality_rating.load_cfg import table, conn_string
 def serve_layout():
     staff_oit_stsb_df = processing.load_staff(table_name=table, connection_string=conn_string)
 
-    tab_selected_style = dict(backgroundColor='#ffd1bb',
+    filter_query_options = [{'label': i, 'value': i} for i in staff_oit_stsb_df['Регион'].unique()]
+    filter_query_options.insert(0, dict(label='Все регионы', value='Все регионы'))
+
+    tab_selected_style = dict(backgroundColor='#dfe49b',
                               fontWeight='bold')
     layout = html.Div([
         html.Div([
@@ -27,9 +30,10 @@ def serve_layout():
             dcc.Tab(label='Подготовка файла',
                     value='encrypt',
                     children=[
-                        html.Label('''Загрузите файл с выполненными заявками. С порядком работы с программой, а также 
-                        требованиями к формату файлов можно ознакомиться, зайдя в меню "О программе"''',
-                                   className='labels_encrypt'),
+                        html.Label(
+                            '''Загрузите файл с выполненными заявками. С порядком работы с программой, а также 
+                            требованиями к формату файлов можно ознакомиться, зайдя в меню "О программе"''',
+                            className='labels_encrypt'),
                         html.Label(
                             '''ВАЖНО!!! Пожалуйста не удаляйте столбец № 1 из подготовленного программой файла.''',
                             className='labels_encrypt'),
@@ -39,6 +43,7 @@ def serve_layout():
                             html.Button('Загрузить файл с данными', className='btn_loaders'),
                             id='upload-data',
                             className='btn_load'),
+
                         html.Br(),
                         html.Span(id='error_msg_encrypt',
                                   className='labels_encrypt'),
@@ -46,17 +51,50 @@ def serve_layout():
                         html.Br(),
                         html.Div([
                             dcc.Loading(
+                                id="loading-3",
+                                type="cube",
+                                fullscreen=True,
+                                color='#9db33e',
+                                children=dcc.Store(id='memory_storage')
+                            ),
+                            html.Div([
+                                html.Div([
+                                    html.Label('Фильтр по столбцу "Проверяющий регион"',
+                                               style=dict(fontSize='16px'))
+                                ],
+                                    className='bblock'),
+                                html.Div([
+                                    dcc.Dropdown(id='filter_query',
+                                                 options=filter_query_options,
+                                                 value=filter_query_options[0]['value'],
+                                                 clearable=False,
+                                                 style=dict(width='250px',
+                                                            padding='0 20px',
+                                                            fontSize='16px'))
+                                ],
+                                    className='bblock')
+                            ],
+                                className='labels_encrypt'
+                            ),
+                        ]),
+                        html.Div([
+                            dcc.Loading(
                                 id="loading-1",
                                 type="cube",
                                 fullscreen=True,
-                                color='#e4815d',
+                                color='#9db33e',
                                 children=html.Div([
                                     dash_table.DataTable(id='table_encrypt',
                                                          export_format='xlsx',
-                                                         css=[{'selector': 'table', 'rule': 'table-layout: flex'}],
+                                                         css=[{'selector': 'table', 'rule': 'table-layout: fixed'}],
                                                          style_cell=dict(textAlign='center',
                                                                          whiteSpace='normal',
-                                                                         height='auto'),
+                                                                         height='auto',
+
+                                                                         ),
+                                                         style_cell_conditional=[
+                                                             {'if': {'column_id': 'Описание'}, 'width': '20%'},
+                                                             {'if': {'column_id': 'Описание решения'}, 'width': '20%'}]
                                                          ),
                                 ], id="loading-output-1", className='table_all')
                             ),
@@ -83,11 +121,12 @@ def serve_layout():
                                   className='labels_encrypt'),
                         html.Br(),
                         html.Br(),
+
                         html.Div([
                             dcc.Loading(
                                 id="loading-2",
                                 type="cube",
-                                color='#e4815d',
+                                color='#9db33e',
                                 fullscreen=True,
                                 children=html.Div([
                                     dash_table.DataTable(id='table_decrypt',
@@ -124,9 +163,9 @@ def serve_layout():
 
                     ],
                     selected_style=tab_selected_style)
-        ], colors=dict(border='#9c4b28',
-                       primary='#9c4b28',
-                       background='#e4815d')),
+        ], colors=dict(border='#55761a',
+                       primary='#55761a',
+                       background='#9db33e')),
         html.Div([
             html.Div([
                 html.Div([

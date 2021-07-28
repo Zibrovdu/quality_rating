@@ -1,14 +1,16 @@
 import dash
 from dash.dependencies import Output, Input
 
+import pandas as pd
+
 import quality_rating.decrypt as decrypt
 import quality_rating.encrypt as encrypt
 import quality_rating.processing as processing
 
 
 def register_callbacks(app):
-    @app.callback(Output('table_encrypt', 'data'),
-                  Output('table_encrypt', 'columns'),
+    @app.callback(Output('memory_storage', 'data'),
+                  # Output('table_encrypt', 'columns'),
                   Output('error_msg_encrypt', 'children'),
                   Output('error_msg_encrypt', 'style'),
                   Input('upload-data', 'contents'),
@@ -44,7 +46,10 @@ def register_callbacks(app):
 
                 style = processing.set_styles(msg=msg)
 
-                return total_df.to_dict('records'), [{'name': i, 'id': i} for i in total_df.columns], msg, style
+                # if filter_query:
+                #     total_df = total_df[total_df['Проверяющий регион'] == filter_query]
+
+                return total_df.to_dict('records'), msg, style
 
             msg = encrypt.data_table(data_df=incoming_df,
                                      staff_encrypt_df=staff_encrypt_df,
@@ -53,10 +58,27 @@ def register_callbacks(app):
 
             style = processing.set_styles(msg=msg)
 
-            return total_df.to_dict('records'), [{'name': i, 'id': i} for i in total_df.columns], msg, style
+            return total_df.to_dict('records'), msg, style
 
         else:
-            return dash.no_update, dash.no_update, dash.no_update, dash.no_update
+            return dash.no_update, dash.no_update, dash.no_update
+
+    @app.callback(
+        Output('table_encrypt', 'data'),
+        Output('table_encrypt', 'columns'),
+        Input('memory_storage', 'data'),
+        Input('filter_query', 'value')
+    )
+    def update_table(data, filter_region):
+        if data:
+            df = pd.DataFrame(data)
+            columns = [{'name': i, 'id': i} for i in df.columns]
+            if filter_region == 'Все регионы':
+                return df.to_dict('records'), columns
+            else:
+                df = df[df['Проверяющий регион'] == filter_region]
+                return df.to_dict('records'), columns
+        return dash.no_update, dash.no_update
 
     @app.callback(Output('table_decrypt', 'data'),
                   Output('table_decrypt', 'columns'),

@@ -2,12 +2,12 @@
     height: 75px;
     width/max-width: 1800px;
     margin: 0 auto;
-    background-color: #9c4b28;
+    background-color: #55761a;
     border-radius: 2px;
 }
 
 .banner h2{
-    color: #fffaf6;
+    color: white;
     padding-top: 10px;
     margin-left: 2%;
     display: inline-block;
@@ -41,16 +41,16 @@ table2 {
 }
 th {
   font-weight: normal;
-  color: #9c4b28;
+  color: #55761a;
 
   padding: 10px 8px;
 }
 td {
-  color: #e4815d;
+  color: #55761a;
   padding: 9px 8px;
   transition: .3s linear;
 }
-tr:hover td {color: #fdb195;}
+tr:hover td {color: #dfe49b;}
 
 .table_budget {
     width: 0%;
@@ -221,60 +221,6 @@ media screen and (max-width: 650px) {
     outline: 0;
 }
 
-.link_bounds {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 15px;
-	color: #ffffff;
-	padding: 10px 20px;
-	background: -moz-linear-gradient(
-		top,
-		#42aaff 0%,
-		#003366);
-	background: -webkit-gradient(
-		linear, left top, left bottom,
-		from(#42aaff),
-		to(#003366));
-	-moz-border-radius: 10px;
-	-webkit-border-radius: 10px;
-	border-radius: 10px;
-	border: 1px solid #003366;
-	-moz-box-shadow:
-		0px 1px 3px rgba(000,000,000,0.5),
-		inset 0px 0px 1px rgba(255,255,255,0.5);
-	-webkit-box-shadow:
-		0px 1px 3px rgba(000,000,000,0.5),
-		inset 0px 0px 1px rgba(255,255,255,0.5);
-	box-shadow:
-		0px 1px 3px rgba(000,000,000,0.5),
-		inset 0px 0px 1px rgba(255,255,255,0.5);
-	text-shadow:
-		0px -1px 0px rgba(000,000,000,0.7),
-		0px 1px 0px rgba(255,255,255,0.3);
-	display: inline-block;
-	text-decoration: none;
-}
-.link_bounds:hover {
-    color: #ffffff;
-	background: -moz-linear-gradient(
-		top,
-		#42aaff 0%,
-		#0d5aa7);
-	background: -webkit-gradient(
-		linear, left top, left bottom,
-		from(#42aaff),
-		to(#0d5aa7));
-}
-.link_bounds:active {
-	background: -moz-linear-gradient(
-		top,
-		#003366 0%,
-		#42aaff);
-	background: -webkit-gradient(
-		linear, left top, left bottom,
-		from(#003366),
-		to(#42aaff));
-}
-
 .div_table_budget {
     padding: 10px;
     height: 165px;
@@ -301,35 +247,9 @@ media screen and (max-width: 650px) {
     font-type: bold;
 }
 
-.div_btn_save_modify {
-    float: right;
-    position: relative;
-    margin: 0 auto;
-}
-
-.div_project_tables {
-    width: 97%;
-    padding: 20px;
-}
-
-.H3_work_projects {
-    color: #1959d1;
-    font-weight: bold;
-}
-
-.H3_complete_projects {
-    color: #1F5C0A;
-    font-weight: bold;
-}
-
-.dropdown_choose_unit_inf_sys {
-    width: 62%;
-    padding: 10px;
-}
-
 .labels_encrypt {
-    padding: 10px;
-    color: #9c4b28;
+    padding: 10px 25px;
+    color: #55761a;
 }
 
 .export {
@@ -341,8 +261,8 @@ media screen and (max-width: 650px) {
       content:'Сохранить в формате excel';
       visibility: visible;
       position: absolute;
-      color: #e4815d;
-      border: 1px solid #e4815d;
+      color: #55761a;
+      border: 1px solid #55761a;
       border-radius: 5px;
       padding: 0 30px;
       margin: 0 0 10px -75px;
@@ -364,6 +284,6 @@ media screen and (max-width: 650px) {
 }
 
 .btn_loaders {
-    color: #e4815d;
-    border: 1px solid #e4815d;
+    color: #55761a;
+    border: 1px solid #55761a;
 }
