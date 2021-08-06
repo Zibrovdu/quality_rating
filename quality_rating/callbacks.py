@@ -35,6 +35,8 @@ def register_callbacks(app):
 
                 data_df = encrypt.get_difficult_level(df=data_df)
 
+                data_df = encrypt.get_category_level(df=data_df)
+
                 result_df = encrypt.create_result_table(data_df=data_df)
 
                 result_df = encrypt.transform_result_table(filename_key_file=filename_key_file,

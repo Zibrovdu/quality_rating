@@ -3,13 +3,14 @@ import pandas as pd
 
 def load_staff(table_name, connection_string):
     df = pd.read_sql(f"SELECT fio, region from {table_name}", con=connection_string)
+    df.sort_values(['region', 'fio'], ascending=True, inplace=True)
     df.columns = ['ФИО', 'Регион']
     return df
 
 
 def no_data():
     df = pd.DataFrame(columns=['ФИО', 'Код сотрудника', 'Регион сотрудника', 'Проверяющий регион',
-                               'Проверяющий сотрудник', 'Описание', 'Аналитические признаки', 'Описание решения',
+                               'Проверяющий сотрудник', 'Описание', 'Сложность', 'Категория', 'Описание решения',
                                'Количество уточнений', 'Количество возобновлений (max 4)',
                                'Время выполнения (max 24 ч.)', 'Есть вложения?'])
     return df

@@ -143,7 +143,7 @@ def create_total_table(result_table, data_df):
                 return 'Да'
         return 'Нет'
 
-    result_table = result_table.merge(data_df[['Номер', 'Описание', 'Аналитические признаки', 'Описание решения',
+    result_table = result_table.merge(data_df[['Номер', 'Описание', 'Сложность', 'Категория', 'Описание решения',
                                                'Количество уточнений', 'Количество возобновлений', 'Время выполнения']],
                                       how='left',
                                       left_on='tasks_numbers',
@@ -159,7 +159,6 @@ def create_total_table(result_table, data_df):
                         inplace=True)
     result_table.rename(columns={'Количество возобновлений': 'Количество возобновлений (max 4)',
                                  'Время выполнения': 'Время выполнения, ч (max 24 ч.)',
-                                 'Аналитические признаки': 'Сложность'
                                  },
                         inplace=True)
     result_table.drop('Номер задачи', axis=1, inplace=True)
@@ -171,10 +170,19 @@ def create_total_table(result_table, data_df):
 
 def get_difficult_level(df):
     df['Аналитические признаки'] = df['Аналитические признаки'].fillna('')
-    df['Аналитические признаки'] = df['Аналитические признаки'].apply(lambda x: x.split(','))
-    df['Аналитические признаки'] = df['Аналитические признаки'].apply(
-        lambda row: [item for item in row if item.strip().isdigit()])
-    df['Аналитические признаки'] = df['Аналитические признаки'].apply(
-        lambda x: x[len(x) - 1] if len(x) > 0 else 'Не указано')
+    df['Сложность'] = df['Аналитические признаки'].apply(lambda x: x.split(','))
+    df['Сложность'] = df['Сложность'].apply(lambda row: [item for item in row if item.strip().isdigit()])
+    df['Сложность'] = df['Сложность'].apply(lambda x: x[len(x) - 1] if len(x) > 0 else 'Не указано')
+
+    return df
+
+
+def get_category_level(df):
+    df['Аналитические признаки'] = df['Аналитические признаки'].fillna('')
+    df['Категория'] = df['Аналитические признаки'].apply(lambda x: x.split(','))
+    df['Категория'] = df['Категория'].apply(lambda row: [item for item in row if not item.strip().isdigit()])
+    df['Категория'] = df['Категория'].apply(lambda x: [x[i].strip() for i in range(len(x))])
+    df['Категория'] = df['Категория'].apply(lambda x: ', '.join(x))
+    df['Категория'] = df['Категория'].apply(lambda x: 'Не указано' if x == '' else x)
 
     return df
