@@ -3,10 +3,11 @@ import dash_html_components as html
 import dash_table
 
 import quality_rating.processing as processing
-from quality_rating.load_cfg import table, conn_string
+from quality_rating.load_cfg import table, conn_string, config
 
 
 def serve_layout():
+
     staff_oit_stsb_df = processing.load_staff(table_name=table,
                                               connection_string=conn_string)
 
@@ -16,6 +17,9 @@ def serve_layout():
 
     tab_selected_style = dict(backgroundColor='#dfe49b',
                               fontWeight='bold')
+
+    max_tasks_limit = config['main']['max_tasks_limit']
+
     layout = html.Div([
         html.Div([
             html.H2('Оценка качества отработанных второй линией технической поддержки обращений'),
@@ -43,7 +47,7 @@ def serve_layout():
                         html.Div([
                             html.Div([
                                 html.Label(
-                                    'Текущий лимит количества обращений на сотрудника (от 1 до 10)',
+                                    'Текущее количество задач, отбираемое для оценки сотрудника (от 1 до 10)',
                                     id='curr_tasks',
                                     className='lbl_limit'
                                 ),
@@ -54,7 +58,7 @@ def serve_layout():
                                     min=1,
                                     max=10,
                                     step=1,
-                                    value=5,
+                                    value=max_tasks_limit,
                                     className='curr_tasks_input'
                                 ),
                                 html.Button(

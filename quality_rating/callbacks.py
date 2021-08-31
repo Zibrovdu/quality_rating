@@ -7,12 +7,14 @@ import numpy as np
 import quality_rating.decrypt as decrypt
 import quality_rating.encrypt as encrypt
 import quality_rating.processing as processing
+from quality_rating.load_cfg import config, write_config,max_tasks_limit
 
 
 def register_callbacks(app):
     @app.callback(Output('memory_storage', 'data'),
                   Output('error_msg_encrypt', 'children'),
                   Output('error_msg_encrypt', 'style'),
+                  Output('curr_tasks_input', 'value'),
                   Input('upload-data', 'contents'),
                   Input('upload-data', 'filename'),
                   Input('submit_btn', 'n_clicks'),
@@ -20,8 +22,16 @@ def register_callbacks(app):
                   )
     def encrypt_file(contents, filename, clicks, value):
         current_limit = value
+        if current_limit != max_tasks_limit:
+            config.set('main', 'max_tasks_limit', str(current_limit))
+            write_config(conf=config)
+
         if clicks:
             current_limit = value
+            if current_limit != max_tasks_limit:
+                config.set('main', 'max_tasks_limit', str(current_limit))
+                write_config(conf=config)
+
         if contents is not None:
             incoming_df = encrypt.parse_contents_encrypt(contents=contents,
                                                          filename=filename)
@@ -45,7 +55,7 @@ def register_callbacks(app):
 
                 data_df = encrypt.main_categories(df=data_df)
 
-                result_df = encrypt.create_result_table(data_df=data_df, limit=current_limit)
+                result_df = encrypt.create_result_table(data_df=data_df, limit=int(current_limit))
 
                 result_df = encrypt.transform_result_table(filename_key_file=filename_key_file,
                                                            result_table=result_df,
@@ -56,7 +66,7 @@ def register_callbacks(app):
 
                 style = processing.set_styles(msg=msg)
 
-                return total_df.to_dict('records'), msg, style
+                return total_df.to_dict('records'), msg, style, current_limit
 
             msg = encrypt.data_table(data_df=incoming_df,
                                      staff_encrypt_df=staff_encrypt_df,
@@ -65,10 +75,10 @@ def register_callbacks(app):
 
             style = processing.set_styles(msg=msg)
 
-            return total_df.to_dict('records'), msg, style
+            return total_df.to_dict('records'), msg, style, current_limit
 
         else:
-            return dash.no_update, dash.no_update, dash.no_update
+            return dash.no_update, dash.no_update, dash.no_update, current_limit
 
     @app.callback(
         Output('table_encrypt', 'data'),
