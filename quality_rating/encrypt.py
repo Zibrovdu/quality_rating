@@ -9,6 +9,7 @@ import pandas as pd
 
 import quality_rating.log_writer as lw
 import quality_rating.processing as processing
+import quality_rating.category_lists as cat_list
 from quality_rating.load_cfg import table, conn_string
 
 staff_info_df = processing.load_staff(table_name=table, connection_string=conn_string)
@@ -29,13 +30,13 @@ def parse_contents_encrypt(contents, filename):
         return content_df
 
 
-def get_quantity_tasks(df, pers_code):
+def get_quantity_tasks(df, pers_code, limit):
     if len(df[df.person_code == pers_code]['Номер'].unique()) == 0:
         return 0
-    elif len(df[df.person_code == pers_code]['Номер'].unique()) * 10 / 100 < 0.6:
-        return 1
+    elif len(df[df.person_code == pers_code]['Номер'].unique()) > limit:
+        return limit
     else:
-        return round(len(df[df.person_code == pers_code]['Номер'].unique()) * 10 / 100)
+        return len(df[df.person_code == pers_code]['Номер'].unique())
 
 
 def data_table(data_df, staff_encrypt_df, filename):
@@ -99,13 +100,13 @@ def write_key_file(staff_encrypt_df):
     return filename_key_file
 
 
-def create_result_table(data_df):
+def create_result_table(data_df, limit):
     df = pd.DataFrame(columns=['person_code', 'region', 'quantity_tasks', 'tasks_numbers'])
 
     for index, code in enumerate(data_df[data_df.person_code.notna()].person_code.unique()):
         region = data_df[data_df.person_code == code]['Регион'].unique()[0]
-        quantity_tasks = get_quantity_tasks(df=data_df, pers_code=code)
-        num_tasks = random.choices(list(data_df[data_df.person_code == code]['Номер'].unique()), k=quantity_tasks)
+        quantity_tasks = get_quantity_tasks(df=data_df, pers_code=code, limit=limit)
+        num_tasks = random.sample(list(data_df[data_df.person_code == code]['Номер'].unique()), k=quantity_tasks)
         df.loc[index] = code, region, quantity_tasks, num_tasks
     return df
 
@@ -125,10 +126,12 @@ def transform_result_table(filename_key_file, result_table, staff_df):
         regions_dict[i] = [x for x in staff_df['Регион'].unique() if x != i]
     df['Проверяющий регион'] = df.region.apply(lambda x: random.choice(regions_dict[x]))
 
-    staff_regions_dict = dict()
-    for i in list(staff_df['Регион'].unique()):
-        staff_regions_dict[i] = [x for x in staff_df[staff_df['Регион'] == i]['ФИО'].unique()]
-    df['Проверяющий сотрудник'] = df['Проверяющий регион'].apply(lambda x: random.choice(staff_regions_dict[x]))
+    df['Проверяющий сотрудник'] = ''
+
+    # staff_regions_dict = dict()
+    # for i in list(staff_df['Регион'].unique()):
+    #     staff_regions_dict[i] = [x for x in staff_df[staff_df['Регион'] == i]['ФИО'].unique()]
+    # df['Проверяющий сотрудник'] = df['Проверяющий регион'].apply(lambda x: random.choice(staff_regions_dict[x]))
 
     return df
 
@@ -143,14 +146,13 @@ def create_total_table(result_table, data_df):
                 return 'Да'
         return 'Нет'
 
-    result_table = result_table.merge(data_df[['Номер', 'Описание', 'Сложность', 'Категория', 'Описание решения',
-                                               'Количество уточнений', 'Количество возобновлений', 'Время выполнения']],
+    result_table = result_table.merge(data_df[['Номер', 'Описание', 'Сложность', 'Подсистема', 'Категория',
+                                               'Описание решения', 'Количество уточнений', 'Количество возобновлений',
+                                               'Время выполнения']],
                                       how='left',
                                       left_on='tasks_numbers',
                                       right_on='Номер')
-    result_table.drop('Номер',
-                      axis=1,
-                      inplace=True)
+
     result_table['Есть вложения?'] = result_table['Описание'].apply(lambda x: may_has_files(x))
 
     result_table.rename(columns=dict(person_code='Код сотрудника',
@@ -163,7 +165,7 @@ def create_total_table(result_table, data_df):
                         inplace=True)
     result_table.drop('Номер задачи', axis=1, inplace=True)
     result_table.sort_values(['Проверяющий регион', 'Проверяющий сотрудник'], ascending=True, inplace=True)
-    result_table[['Решение', 'Время решения', 'Кол-во возвратов']] = ''
+    result_table[['Оценка', 'Комментарий к оценке']] = ''
 
     return result_table
 
@@ -182,7 +184,18 @@ def get_category_level(df):
     df['Категория'] = df['Аналитические признаки'].apply(lambda x: x.split(','))
     df['Категория'] = df['Категория'].apply(lambda row: [item for item in row if not item.strip().isdigit()])
     df['Категория'] = df['Категория'].apply(lambda x: [x[i].strip() for i in range(len(x))])
-    df['Категория'] = df['Категория'].apply(lambda x: ', '.join(x))
+    df['Категория'] = df['Категория'].apply(lambda x: x[0] if len(x) > 0 else x)
+    df['Категория'] = df['Категория'].apply(lambda x: '' if x == [] else x)
     df['Категория'] = df['Категория'].apply(lambda x: 'Не указано' if x == '' else x)
+
+    return df
+
+
+def main_categories(df):
+    df['Подсистема'] = ''
+    df.loc[df[df['Категория'].isin(cat_list.zkgu_list)].index, 'Подсистема'] = 'ЗКГУ'
+    df.loc[df[df['Категория'].isin(cat_list.bgu_list)].index, 'Подсистема'] = 'БГУ'
+    df.loc[df[df['Категория'].isin(cat_list.com_list)].index, 'Подсистема'] = 'Командирование'
+    df.loc[df[df['Категория'].isin(cat_list.admin_list)].index, 'Подсистема'] = 'Администрирование'
 
     return df

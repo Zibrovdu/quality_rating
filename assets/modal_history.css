@@ -25,7 +25,7 @@ body {
 .section.section-3 {
   background-color: #0e34a0;
 }
-
+/*
 .link {
   color: #0f93ff;
   padding: 20px;
@@ -36,6 +36,7 @@ body {
 .link:hover {
   text-decoration: underline;
 }
+*/
 
 .modal_about {
   display: flex;
@@ -104,8 +105,9 @@ body {
 .modal--s .modal__dialog  {width: 300px;}
 .modal--m .modal__dialog {width: 600px;}
 .modal--l .modal__dialog {width: 900px;}
+.modal--xl .modal__dialog {width: 1700px; height: 1200px;}
 
-.modal--screen-height .modal__dialog {max-height: 80vh;}
+.modal--screen-height .modal__dialog {max-height: 100vh;}
 
 .modal--active {
   visibility: visible;

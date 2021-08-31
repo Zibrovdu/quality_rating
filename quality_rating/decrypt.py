@@ -34,12 +34,12 @@ def load_data(df, filename):
         decrypt_df.drop([df.columns[0], 'person_code'],
                         axis=1,
                         inplace=True)
-        if 'Решение' and 'Время решения' and 'Кол-во возвратов' in df.columns:
+        if 'Оценка' in df.columns:
             decrypt_df = decrypt_df[['ФИО', 'Код сотрудника', 'Регион сотрудника', 'Проверяющий регион',
-                                     'Проверяющий сотрудник', 'Описание', 'Сложность', 'Категория', 'Описание решения',
-                                     'Количество уточнений', 'Количество возобновлений (max 4)',
-                                     'Время выполнения, ч (max 24 ч.)', 'Есть вложения?', 'Решение', 'Время решения',
-                                     'Кол-во возвратов']]
+                                     'Проверяющий сотрудник', 'Номер', 'Описание', 'Сложность', 'Категория',
+                                     'Описание решения', 'Количество уточнений', 'Количество возобновлений (max 4)',
+                                     'Время выполнения, ч (max 24 ч.)', 'Есть вложения?', 'Оценка',
+                                     'Комментарий к оценке']]
 
         lw.log_writer(log_msg=f'Файл "{filename}" успешно расшифрован')
         return decrypt_df, "Файл успешно расшифрован"
@@ -65,18 +65,15 @@ def count_mean_difficult_level(df):
 
 
 def make_decrypted_table(mean_diff_level_df, decrypt_df):
+    decrypt_df = decrypt_df[decrypt_df['Оценка'] != 0]
     decrypt_df_pivot = decrypt_df.pivot_table(index=['ФИО'],
-                                              values=['Решение', 'Время решения', 'Кол-во возвратов'],
+                                              values=['Оценка'],
                                               aggfunc='mean')
 
-    decrypt_df_pivot = decrypt_df_pivot[['Решение', 'Время решения', 'Кол-во возвратов']]
+    decrypt_df_pivot = decrypt_df_pivot[['Оценка']]
 
     for column_name in decrypt_df_pivot.columns:
         decrypt_df_pivot[column_name] = decrypt_df_pivot[column_name].apply(lambda x: round(x, 2))
-
-    decrypt_df_pivot['Итоговая оценка'] = decrypt_df_pivot[['Решение', 'Время решения', 'Кол-во возвратов']].sum(axis=1)
-
-    decrypt_df_pivot['Итоговая оценка'] = decrypt_df_pivot['Итоговая оценка'].apply(lambda x: round(x, 2))
 
     decrypt_df_pivot = decrypt_df_pivot.reset_index()
 

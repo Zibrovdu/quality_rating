@@ -40,6 +40,31 @@ def serve_layout():
                             '''ВАЖНО!!! Пожалуйста не меняйте структуру сформированного файла (не удаляйте, не 
                             переименовывайте столбцы и не меняйте их порядок).''',
                             className='labels_encrypt'),
+                        html.Div([
+                            html.Div([
+                                html.Label(
+                                    'Текущий лимит количества обращений на сотрудника (от 1 до 10)',
+                                    id='curr_tasks',
+                                    className='lbl_limit'
+                                ),
+                                dcc.Input(
+                                    id='curr_tasks_input',
+                                    type='number',
+                                    inputMode='numeric',
+                                    min=1,
+                                    max=10,
+                                    step=1,
+                                    value=5,
+                                    className='curr_tasks_input'
+                                ),
+                                html.Button(
+                                    id='submit_btn',
+                                    n_clicks=0,
+                                    children='Установить',
+                                    className='submit_btn'
+                                ),
+                            ]),
+                        ]),
                         html.Br(),
                         html.Br(),
                         dcc.Upload(
@@ -111,11 +136,11 @@ def serve_layout():
             dcc.Tab(label='Расшифровка файла',
                     value='decrypt',
                     children=[
-                        html.Label('''Загрузите файл сформированный ранее в котором проставлены оценки. Оценки (целое 
-                        число от 0 до 4) должны быть проставлены в каждой ячейке трех крайних столбцов (Решение, Время 
-                        решения, Кол-во возвратов). Ввод других значений, а также пропуски не допускаются. С порядком 
-                        работы с программой, а также требованиями к формату файлов можно ознакомиться, зайдя в меню "О 
-                        программе"''',
+                        html.Label('''Загрузите файл сформированный ранее в котором проставлены оценки. Оценка (целое 
+                        число от 0 до 5) должна быть проставлена в каждой ячейке столбца "Оценка". Ввод других значений,
+                         а также пропуски не допускаются.
+                         С порядком работы с программой, а также требованиями к формату файлов можно ознакомиться, зайдя
+                          в меню "О программе"''',
                                    className='labels_encrypt'),
                         html.Label(
                             '''ВАЖНО!!! Пожалуйста не меняйте структуру сформированного файла (не удаляйте, не 
@@ -131,6 +156,11 @@ def serve_layout():
                         html.Br(),
                         html.Span(id='error_msg',
                                   className='labels_encrypt'),
+                        html.Br(),
+                        html.Br(),
+                        html.A('Детализация',
+                               href='#modal-2',
+                               className='js-modal-open link'),
                         html.Br(),
                         html.Br(),
 
@@ -205,6 +235,65 @@ def serve_layout():
         ],
             id='modal-1',
             className='modal_about modal--l'),
+
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Div(['Детализация'
+                              ], className='modal__dialog-header-content'),
+                    html.Div([
+                        html.Button([
+                            html.Span('x')
+                        ], className='js-modal-close modal__dialog-header-close-btn')
+                    ], className='modal__dialog-header-close')
+                ], className='modal__dialog-header'),
+                html.Div([
+                    html.Br(),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Label(
+                                    'Выберите сотрудника',
+                                    className='person_label')
+                            ]),
+                            html.Div([
+                                dcc.Dropdown(
+                                    id='person',
+                                    clearable=False,
+                                    searchable=False,
+                                    placeholder='Выберите сотрудника')
+                            ],
+                                className='person_dropdown_div'
+                            ),
+                        ]),
+
+                        html.Div([
+                            dcc.Loading(id='person_table_loading',
+                                        fullscreen=False,
+                                        children=[
+                                            html.Div([
+                                                dash_table.DataTable(id='person_table',
+                                                                     export_format='xlsx',
+                                                                     style_cell={
+                                                                         'whiteSpace': 'normal',
+                                                                         'height': 'auto',
+                                                                         'textAlign': 'center',
+                                                                         'backgroundColor': '#f0f8ff'
+                                                                     },
+                                                                     )
+                                            ], className='dash_tables'),
+                                        ])
+                        ]),
+                    ]),
+                    html.Br(),
+                ], className='modal__dialog-body'),
+                html.Div([
+                    html.Button('Закрыть', className='js-modal-close modal__dialog-footer-close-btn')
+                ], className='modal__dialog-footer')
+            ], className='modal__dialog')
+        ],
+            id='modal-2',
+            className='modal_about modal--xl'),
         html.Script(src='assets/js/main.js'),
     ])
     return layout
