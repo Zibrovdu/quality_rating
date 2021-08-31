@@ -56,7 +56,7 @@ def load_data(df, filename):
 def count_mean_difficult_level(df):
     difficult_level_dict = dict()
     for person in df['ФИО'].unique():
-        difficult_list = [dif for dif in df[df['ФИО'] == person]['Сложность'].tolist() if dif.isdigit()]
+        difficult_list = [dif for dif in df[df['ФИО'] == person]['Сложность'].tolist() if str(dif).isdigit()]
         if difficult_list:
             difficult_level_dict[person] = round(mean(list(map(int, difficult_list))), 2)
         else:
