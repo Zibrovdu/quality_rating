@@ -7,7 +7,6 @@
 /.idea
 *.rkz
 *.ini
-!config.ini
 /qr_venv
 /.ssh
 /quality_rating/__pycache__

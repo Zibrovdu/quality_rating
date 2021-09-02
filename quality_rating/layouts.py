@@ -22,7 +22,7 @@ def serve_layout():
 
     layout = html.Div([
         html.Div([
-            html.H2('Оценка качества отработанных второй линией технической поддержки обращений'),
+            html.H2('Оценка качества обращений, отработанных второй линией технической поддержки'),
             html.Img(src="assets/logo.png")],
             className="banner"),
         html.Br(),

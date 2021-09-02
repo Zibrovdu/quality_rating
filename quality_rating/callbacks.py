@@ -7,7 +7,7 @@ import numpy as np
 import quality_rating.decrypt as decrypt
 import quality_rating.encrypt as encrypt
 import quality_rating.processing as processing
-from quality_rating.load_cfg import config, write_config,max_tasks_limit
+from quality_rating.load_cfg import config, write_config, max_tasks_limit, conn_string, table
 
 
 def register_callbacks(app):
@@ -110,15 +110,22 @@ def register_callbacks(app):
                   )
     def decrypt_file(contents, filename, person):
         if contents is not None:
-            incoming_df = decrypt.parse_contents_decrypt(contents=contents,
-                                                         filename=filename)
+            incoming_df = decrypt.parse_contents_decrypt(
+                contents=contents,
+                filename=filename
+            )
             if len(incoming_df) > 0:
-                decrypted_df = decrypt.load_data(df=incoming_df,
-                                                 filename=filename)[0]
+                decrypted_df = decrypt.load_data(
+                    df=incoming_df,
+                    filename=filename
+                )[0]
                 options = [{'label': item, 'value': item} for item in np.sort(decrypted_df['ФИО'].unique())]
 
-                person_df = decrypted_df[decrypted_df['ФИО'] == person][['Номер', 'Описание', 'Описание решения',
-                                                                         'Оценка', 'Комментарий к оценке']]
+                person_df = processing.load_staff(table_name=table, connection_string=conn_string).merge(
+                    decrypted_df[decrypted_df['ФИО'] == person][['ФИО', 'Номер', 'Описание', 'Описание решения',
+                                                                 'Оценка', 'Комментарий к оценке']],
+                    how='right',
+                    on='ФИО')
 
                 count_mean_difficult_level_df = decrypt.count_mean_difficult_level(df=decrypted_df)
 
