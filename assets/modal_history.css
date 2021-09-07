@@ -74,6 +74,7 @@ body {
 .modal__dialog-header-content {
   flex-grow: 1;
   font-size: 24px;
+  color: #55761a
 }
 
 .modal__dialog-header-close {
@@ -82,13 +83,34 @@ body {
 }
 
 .modal__dialog-header-close-btn {
-  margin: 0;
+    border-radius: 10px;
+    margin: 5px 23px;
+    color: #55761a;
+    border: 1px solid #55761a;
+    background-color: rgb(223, 228, 155);
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .1rem;
+    padding: 0px 13px;
+ /* margin: 0;
   padding: 0;
   background: none;
   border: 0;
   cursor: pointer;
   font-size: 24px;
   line-height: 24px;
+  color: #9db33e;
+  */
+}
+
+.modal__dialog-header-close-btn:hover {
+    background-color: #55761a;
+}
+
+.modal__dialog-header-close-btn:active {
+    background-color: #63a583;
 }
 
 .modal__dialog-body {
@@ -133,20 +155,24 @@ body {
 
 .modal__dialog-footer-close-btn {
   display: inline-block;
-  padding: 8px 16px;
+  margin: 5px 23px;
   font-family: 'Open Sans', sans-serif;
-  font-size: 14px;
+  font-size: 11px;
   line-height: 28px;
   color: #354663;
   cursor: pointer;
-  background-color: #ebedee;
-  border: 0;
-  border-radius: 4px;
+  background-color: rgb(223, 228, 155);
+  border: 1px solid #55761a;
+  border-radius: 10px;
   transition: .2s;
 }
 
 .modal__dialog-footer-close-btn:hover {
-  background-color: #d5d9dc;
+  background-color: #9db33e;
+}
+
+.modal__dialog-footer-close-btn:active {
+  background-color: #63a583;
 }
 
 .frame-history {
@@ -154,5 +180,6 @@ body {
     height: 400px;
     font-family: 'Open Sans', sans-serif;
     font-size: 18px;
+    color: #55761a
 
 }

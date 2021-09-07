@@ -125,18 +125,19 @@ def register_callbacks(app):
                     df=incoming_df,
                     filename=filename
                 )[0]
-                options = [{'label': item, 'value': item} for item in np.sort(decrypted_df['ФИО'].unique())]
-                options.insert(0, dict(label='Все пользователи', value='Все пользователи'))
+                # options = [{'label': item, 'value': item} for item in np.sort(decrypted_df['ФИО'].unique())]
+                # options.insert(0, dict(label='Все пользователи', value='Все пользователи'))
+                #
+                # regions = [{'label': item, 'value': item} for item in np.sort(staff_df['Регион'].unique())]
+                # regions.insert(0, dict(label='Все регионы', value='Все регионы'))
 
-                regions = [{'label': item, 'value': item} for item in np.sort(staff_df['Регион'].unique())]
-                regions.insert(0, dict(label='Все регионы', value='Все регионы'))
-
-                total_df = processing.filter_region_person(
+                total_df, options, regions = processing.filter_region_person(
                     filter_df=decrypted_df,
                     staff_df=staff_df,
                     person=person,
                     region=region
                 )
+                print(total_df)
 
                 count_mean_difficult_level_df = decrypt.count_mean_difficult_level(df=decrypted_df)
 

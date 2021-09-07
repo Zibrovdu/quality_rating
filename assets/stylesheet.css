@@ -121,7 +121,7 @@ media screen and (max-width: 650px) {
       position: absolute;
       color: #55761a;
       border: 1px solid #55761a;
-      border-radius: 5px;
+      border-radius: 10px;
       padding: 0 30px;
       margin: 0 0 10px -75px;
       background-color: rgb(223, 228, 155);
@@ -215,6 +215,7 @@ media screen and (max-width: 650px) {
     display: inline-block;
     padding: 5px 16px;
     font-size: 25px;
+    color: #55761a
 }
 
 .person_dropdown_div {

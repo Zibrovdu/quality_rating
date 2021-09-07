@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 def load_staff(table_name, connection_string):
@@ -79,17 +80,49 @@ def set_styles(msg):
 
 
 def filter_region_person(filter_df, staff_df, person, region):
-    person_df = staff_df.merge(filter_df[['ФИО', 'Номер', 'Описание', 'Описание решения', 'Оценка',
-                                          'Комментарий к оценке']],
-                               how='right',
-                               on='ФИО')
+    total_df = staff_df.merge(filter_df[['ФИО', 'Номер', 'Описание', 'Описание решения', 'Оценка',
+                                         'Комментарий к оценке']],
+                              how='right',
+                              on='ФИО')
 
-    if person == 'Все пользователи' and region == 'Все регионы':
-        return person_df
-    elif person == 'Все пользователи' and (region != 'Все регионы' and region):
-        return person_df[person_df['Регион'] == region]
-    elif region == 'Все регионы' and (person != 'Все регионы' and person):
-        return person_df[person_df['ФИО'] == person]
+    if (person == 'Все пользователи' and region == 'Все регионы') or (not person and not region):
+        person_options = [{'label': item, 'value': item} for item in np.sort(total_df['ФИО'].unique())]
+        person_options.insert(0, dict(label='Все пользователи', value='Все пользователи'))
+
+        regions_options = [{'label': item, 'value': item} for item in np.sort(total_df['Регион'].unique())]
+        regions_options.insert(0, dict(label='Все регионы', value='Все регионы'))
+
+        return total_df, person_options, regions_options
+
+    elif (person == 'Все пользователи' or not person) and (region != 'Все регионы' and region):
+
+        total_df = total_df[total_df['Регион'] == region]
+
+        person_options = [{'label': item, 'value': item} for item in np.sort(total_df['ФИО'].unique())]
+        person_options.insert(0, dict(label='Все пользователи', value='Все пользователи'))
+
+        regions_options = [{'label': item, 'value': item} for item in np.sort(total_df['Регион'].unique())]
+        regions_options.insert(0, dict(label='Все регионы', value='Все регионы'))
+
+        return total_df, person_options, regions_options
+
+    elif (region == 'Все регионы' or not region) and (person != 'Все регионы' and person):
+        total_df = total_df[total_df['ФИО'] == person]
+
+        person_options = [{'label': item, 'value': item} for item in np.sort(total_df['ФИО'].unique())]
+        person_options.insert(0, dict(label='Все пользователи', value='Все пользователи'))
+
+        regions_options = [{'label': item, 'value': item} for item in np.sort(total_df['Регион'].unique())]
+        regions_options.insert(0, dict(label='Все регионы', value='Все регионы'))
+
+        return total_df, person_options, regions_options
     else:
-        return person_df[(person_df['ФИО'] == person) | (person_df['Регион'] == region)]
+        total_df = total_df[(total_df['ФИО'] == person) & (total_df['Регион'] == region)]
 
+        person_options = [{'label': item, 'value': item} for item in np.sort(total_df['ФИО'].unique())]
+        person_options.insert(0, dict(label='Все пользователи', value='Все пользователи'))
+
+        regions_options = [{'label': item, 'value': item} for item in np.sort(total_df['Регион'].unique())]
+        regions_options.insert(0, dict(label='Все регионы', value='Все регионы'))
+
+        return total_df, person_options, regions_options
