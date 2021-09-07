@@ -76,3 +76,20 @@ def set_styles(msg):
     else:
         style = dict(color='green', fontWeight='bold')
     return style
+
+
+def filter_region_person(filter_df, staff_df, person, region):
+    person_df = staff_df.merge(filter_df[['ФИО', 'Номер', 'Описание', 'Описание решения', 'Оценка',
+                                          'Комментарий к оценке']],
+                               how='right',
+                               on='ФИО')
+
+    if person == 'Все пользователи' and region == 'Все регионы':
+        return person_df
+    elif person == 'Все пользователи' and (region != 'Все регионы' and region):
+        return person_df[person_df['Регион'] == region]
+    elif region == 'Все регионы' and (person != 'Все регионы' and person):
+        return person_df[person_df['ФИО'] == person]
+    else:
+        return person_df[(person_df['ФИО'] == person) | (person_df['Регион'] == region)]
+

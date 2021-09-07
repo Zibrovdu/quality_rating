@@ -148,7 +148,7 @@ media screen and (max-width: 650px) {
     background-color: rgb(223, 228, 155);
 }
 
-.btn_loaders:hover {;
+.btn_loaders:hover {
     background-color: #9db33e;
 }
 
@@ -159,6 +159,7 @@ media screen and (max-width: 650px) {
 .lbl_limit {
     margin: 10px 25px;
     color: #55761a;
+    display: inline-block;
 }
 
 .curr_tasks_input {
@@ -220,4 +221,15 @@ media screen and (max-width: 650px) {
     width: 300px;
     font-size: 14px;
     padding: 1%;
+}
+
+.lbl_curr_lim {
+    display: inline-block;
+    color: darkblue;
+    font-size: 25px;
+}
+
+. div_table_person {
+    padding: 30px 0px;
+
 }

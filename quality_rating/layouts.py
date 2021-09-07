@@ -7,7 +7,6 @@ from quality_rating.load_cfg import table, conn_string, config
 
 
 def serve_layout():
-
     staff_oit_stsb_df = processing.load_staff(table_name=table,
                                               connection_string=conn_string)
 
@@ -46,27 +45,34 @@ def serve_layout():
                             className='labels_encrypt'),
                         html.Div([
                             html.Div([
-                                html.Label(
-                                    'Текущее количество задач, отбираемое для оценки сотрудника (от 1 до 10)',
-                                    id='curr_tasks',
-                                    className='lbl_limit'
-                                ),
-                                dcc.Input(
-                                    id='curr_tasks_input',
-                                    type='number',
-                                    inputMode='numeric',
-                                    min=1,
-                                    max=10,
-                                    step=1,
-                                    value=max_tasks_limit,
-                                    className='curr_tasks_input'
-                                ),
-                                html.Button(
-                                    id='submit_btn',
-                                    n_clicks=0,
-                                    children='Установить',
-                                    className='submit_btn'
-                                ),
+                                html.Div([
+                                    html.Label(
+                                        'Текущее количество задач, отбираемое для оценки сотрудника (от 1 до 10)',
+                                        id='curr_tasks',
+                                        className='lbl_limit'
+                                    ),
+                                    html.Label('5',
+                                               id='curr_lim',
+                                               className='lbl_curr_lim'
+                                               ), ]),
+                                html.Div([
+                                    dcc.Input(
+                                        id='curr_tasks_input',
+                                        type='number',
+                                        inputMode='numeric',
+                                        min=1,
+                                        max=10,
+                                        step=1,
+                                        value=max_tasks_limit,
+                                        className='curr_tasks_input'
+                                    ),
+                                    html.Button(
+                                        id='submit_btn',
+                                        n_clicks=0,
+                                        children='Установить',
+                                        className='submit_btn'
+                                    ), ]),
+
                             ]),
                         ]),
                         html.Br(),
@@ -256,38 +262,62 @@ def serve_layout():
                     html.Div([
                         html.Div([
                             html.Div([
-                                html.Label(
-                                    'Выберите сотрудника',
-                                    className='person_label')
-                            ]),
+                                html.Div([
+                                    html.Label(
+                                        'Выберите сотрудника',
+                                        className='person_label')
+                                ]),
+                                html.Div([
+                                    dcc.Dropdown(
+                                        id='person',
+                                        clearable=False,
+                                        searchable=False,
+                                        placeholder='Выберите сотрудника')
+                                ],
+                                    className='person_dropdown_div'
+                                ), ], style=dict(display='inline-block')),
                             html.Div([
-                                dcc.Dropdown(
-                                    id='person',
-                                    clearable=False,
-                                    searchable=False,
-                                    placeholder='Выберите сотрудника')
-                            ],
-                                className='person_dropdown_div'
-                            ),
-                        ]),
+                                html.Div([
+                                    html.Label(
+                                        'Выберите регион',
+                                        className='person_label')
+                                ]),
+                                html.Div([
+                                    dcc.Dropdown(
+                                        id='regions',
+                                        clearable=False,
+                                        searchable=False,
+                                        placeholder='Выберите регион')
+                                ],
+                                    className='person_dropdown_div'
+                                ),
+                            ], style=dict(display='inline-block')),
 
-                        html.Div([
-                            dcc.Loading(id='person_table_loading',
-                                        fullscreen=False,
-                                        children=[
-                                            html.Div([
-                                                dash_table.DataTable(id='person_table',
-                                                                     export_format='xlsx',
-                                                                     style_cell={
-                                                                         'whiteSpace': 'normal',
-                                                                         'height': 'auto',
-                                                                         'textAlign': 'center',
-                                                                         'backgroundColor': '#f0f8ff'
-                                                                     },
-                                                                     )
-                                            ], className='dash_tables'),
-                                        ])
                         ]),
+                        html.Br(),
+                        html.Br(),
+                        html.Div([
+                            html.Div([
+                                dcc.Loading(
+                                    id='person_table_loading',
+                                    fullscreen=False,
+                                    children=[
+                                        html.Div([
+                                            dash_table.DataTable(
+                                                id='person_table',
+                                                export_format='xlsx',
+                                                style_cell={
+                                                    'whiteSpace': 'normal',
+                                                    'height': 'auto',
+                                                    'textAlign': 'center',
+                                                    'backgroundColor': '#f0f8ff'
+                                                },
+                                            )
+                                        ], className='dash_tables'),
+                                    ])
+                            ]),
+
+                        ], className='div_table_person'),
                     ]),
                     html.Br(),
                 ], className='modal__dialog-body'),

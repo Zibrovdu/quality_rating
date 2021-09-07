@@ -7,7 +7,7 @@ import numpy as np
 import quality_rating.decrypt as decrypt
 import quality_rating.encrypt as encrypt
 import quality_rating.processing as processing
-from quality_rating.load_cfg import config, write_config, max_tasks_limit, conn_string, table
+from quality_rating.load_cfg import config, write_config, conn_string, table
 
 
 def register_callbacks(app):
@@ -15,12 +15,14 @@ def register_callbacks(app):
                   Output('error_msg_encrypt', 'children'),
                   Output('error_msg_encrypt', 'style'),
                   Output('curr_tasks_input', 'value'),
+                  Output('curr_lim', 'children'),
                   Input('upload-data', 'contents'),
                   Input('upload-data', 'filename'),
                   Input('submit_btn', 'n_clicks'),
                   State('curr_tasks_input', 'value')
                   )
     def encrypt_file(contents, filename, clicks, value):
+        max_tasks_limit = config['main']['max_tasks_limit']
         current_limit = value
         if current_limit != max_tasks_limit:
             config.set('main', 'max_tasks_limit', str(current_limit))
@@ -31,6 +33,7 @@ def register_callbacks(app):
             if current_limit != max_tasks_limit:
                 config.set('main', 'max_tasks_limit', str(current_limit))
                 write_config(conf=config)
+        config_tasks_limit = config['main']['max_tasks_limit']
 
         if contents is not None:
             incoming_df = encrypt.parse_contents_encrypt(contents=contents,
@@ -66,7 +69,7 @@ def register_callbacks(app):
 
                 style = processing.set_styles(msg=msg)
 
-                return total_df.to_dict('records'), msg, style, current_limit
+                return total_df.to_dict('records'), msg, style, current_limit, config_tasks_limit
 
             msg = encrypt.data_table(data_df=incoming_df,
                                      staff_encrypt_df=staff_encrypt_df,
@@ -75,10 +78,10 @@ def register_callbacks(app):
 
             style = processing.set_styles(msg=msg)
 
-            return total_df.to_dict('records'), msg, style, current_limit
+            return total_df.to_dict('records'), msg, style, current_limit, config_tasks_limit
 
         else:
-            return dash.no_update, dash.no_update, dash.no_update, current_limit
+            return dash.no_update, dash.no_update, dash.no_update, current_limit, config_tasks_limit
 
     @app.callback(
         Output('table_encrypt', 'data'),
@@ -104,11 +107,14 @@ def register_callbacks(app):
                   Output('person', 'options'),
                   Output('person_table', 'data'),
                   Output('person_table', 'columns'),
+                  Output('regions', 'options'),
                   Input('upload-data_decrypt', 'contents'),
                   Input('upload-data_decrypt', 'filename'),
-                  Input('person', 'value')
+                  Input('person', 'value'),
+                  Input('regions', 'value')
                   )
-    def decrypt_file(contents, filename, person):
+    def decrypt_file(contents, filename, person, region):
+        staff_df = processing.load_staff(table_name=table, connection_string=conn_string)
         if contents is not None:
             incoming_df = decrypt.parse_contents_decrypt(
                 contents=contents,
@@ -120,12 +126,17 @@ def register_callbacks(app):
                     filename=filename
                 )[0]
                 options = [{'label': item, 'value': item} for item in np.sort(decrypted_df['ФИО'].unique())]
+                options.insert(0, dict(label='Все пользователи', value='Все пользователи'))
 
-                person_df = processing.load_staff(table_name=table, connection_string=conn_string).merge(
-                    decrypted_df[decrypted_df['ФИО'] == person][['ФИО', 'Номер', 'Описание', 'Описание решения',
-                                                                 'Оценка', 'Комментарий к оценке']],
-                    how='right',
-                    on='ФИО')
+                regions = [{'label': item, 'value': item} for item in np.sort(staff_df['Регион'].unique())]
+                regions.insert(0, dict(label='Все регионы', value='Все регионы'))
+
+                total_df = processing.filter_region_person(
+                    filter_df=decrypted_df,
+                    staff_df=staff_df,
+                    person=person,
+                    region=region
+                )
 
                 count_mean_difficult_level_df = decrypt.count_mean_difficult_level(df=decrypted_df)
 
@@ -138,7 +149,8 @@ def register_callbacks(app):
                 style = processing.set_styles(msg=msg)
 
                 return (decrypted_df.to_dict('records'), [{'name': i, 'id': i} for i in decrypted_df.columns], msg,
-                        style, options, person_df.to_dict('records'), [{'name': i, 'id': i} for i in person_df.columns])
+                        style, options, total_df.to_dict('records'), [{'name': i, 'id': i} for i in total_df.columns],
+                        regions)
 
             msg = decrypt.load_data(df=incoming_df,
                                     filename=filename)[1]
@@ -148,7 +160,7 @@ def register_callbacks(app):
             decrypted_df = processing.no_data()
 
             return (decrypted_df.to_dict('records'), [{'name': i, 'id': i} for i in decrypted_df.columns], msg, style,
-                    dash.no_update, dash.no_update, dash.no_update)
+                    dash.no_update, dash.no_update, dash.no_update, dash.no_update)
         else:
             return (dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update,
-                    dash.no_update)
+                    dash.no_update, dash.no_update)
