@@ -214,6 +214,16 @@ def serve_layout():
                             id='output-data-upload_info',
                             className='table_staff'),
                     ],
+                    selected_style=tab_selected_style),
+            dcc.Tab(label='Хранение данных',
+                    value='db',
+                    children=[
+                        html.Div([
+                            html.Div([
+                                dash_table.DataTable(id='db_table')
+                            ])
+                        ])
+                    ],
                     selected_style=tab_selected_style)
         ], colors=dict(border='#55761a',
                        primary='#55761a',
@@ -320,14 +330,53 @@ def serve_layout():
                         ], className='div_table_person'),
                     ]),
                     html.Br(),
-                ], className='modal__dialog-body'),
+                ],
+                    className='modal__dialog-body'
+                ),
                 html.Div([
-                    html.Button('Закрыть', className='js-modal-close modal__dialog-footer-close-btn')
-                ], className='modal__dialog-footer')
-            ], className='modal__dialog')
+                    html.Div([
+                        html.Button(
+                            'Закрыть',
+                            className='js-modal-close modal__dialog-footer-close-btn'
+                        )
+                    ],
+                        style=dict(display='inline-block')
+                    ),
+                    html.Div([
+                        dcc.Store(
+                            id='total_table_store'
+                        ),
+                        html.Div([
+                            html.Button(
+                                'Записать таблицу в базу',
+                                id='load_data_to_db',
+                                className='btn_loaders'
+                            ),
+                        ],
+                            style=dict(display='inline-block')
+                        ),
+                        html.Div([
+                            html.Label(
+                                id='load_data_label'
+                            )
+                        ],
+                            className='div_load_table_to_db_label'
+                        )
+                    ],
+                        className='div_btn_load_to_db'
+                    ),
+                ],
+                    className='modal__dialog-footer'
+                )
+            ],
+                className='modal__dialog'
+            )
         ],
             id='modal-2',
-            className='modal_about modal--xl'),
-        html.Script(src='assets/js/main.js'),
+            className='modal_about modal--xl'
+        ),
+        html.Script(
+            src='assets/js/main.js'
+        ),
     ])
     return layout

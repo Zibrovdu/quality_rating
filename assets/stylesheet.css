@@ -230,7 +230,17 @@ media screen and (max-width: 650px) {
     font-size: 25px;
 }
 
-. div_table_person {
+.div_table_person {
     padding: 30px 0px;
+}
 
+.div_btn_load_to_db {
+    display:inline-block;
+    padding:0px 0px 0px 150px;
+}
+.div_load_table_to_db_label {
+    display: inline-block;
+    padding: 0px 0px 0px 60px;
+    color: green;
+    font-weight:bold;
 }

@@ -2,7 +2,6 @@ import dash
 from dash.dependencies import Output, Input, State
 
 import pandas as pd
-import numpy as np
 
 import quality_rating.decrypt as decrypt
 import quality_rating.encrypt as encrypt
@@ -108,6 +107,7 @@ def register_callbacks(app):
                   Output('person_table', 'data'),
                   Output('person_table', 'columns'),
                   Output('regions', 'options'),
+                  Output('total_table_store', 'data'),
                   Input('upload-data_decrypt', 'contents'),
                   Input('upload-data_decrypt', 'filename'),
                   Input('person', 'value'),
@@ -125,19 +125,16 @@ def register_callbacks(app):
                     df=incoming_df,
                     filename=filename
                 )[0]
-                # options = [{'label': item, 'value': item} for item in np.sort(decrypted_df['ФИО'].unique())]
-                # options.insert(0, dict(label='Все пользователи', value='Все пользователи'))
-                #
-                # regions = [{'label': item, 'value': item} for item in np.sort(staff_df['Регион'].unique())]
-                # regions.insert(0, dict(label='Все регионы', value='Все регионы'))
+                stored_df = staff_df.merge(decrypted_df[['ФИО', 'Номер', 'Проверяющий регион', 'Описание',
+                                                         'Описание решения', 'Оценка', 'Комментарий к оценке']],
+                                           how='right',
+                                           on='ФИО')
 
                 total_df, options, regions = processing.filter_region_person(
-                    filter_df=decrypted_df,
-                    staff_df=staff_df,
+                    df=stored_df,
                     person=person,
                     region=region
                 )
-                print(total_df)
 
                 count_mean_difficult_level_df = decrypt.count_mean_difficult_level(df=decrypted_df)
 
@@ -151,7 +148,7 @@ def register_callbacks(app):
 
                 return (decrypted_df.to_dict('records'), [{'name': i, 'id': i} for i in decrypted_df.columns], msg,
                         style, options, total_df.to_dict('records'), [{'name': i, 'id': i} for i in total_df.columns],
-                        regions)
+                        regions, stored_df.to_dict('records'))
 
             msg = decrypt.load_data(df=incoming_df,
                                     filename=filename)[1]
@@ -161,7 +158,20 @@ def register_callbacks(app):
             decrypted_df = processing.no_data()
 
             return (decrypted_df.to_dict('records'), [{'name': i, 'id': i} for i in decrypted_df.columns], msg, style,
-                    dash.no_update, dash.no_update, dash.no_update, dash.no_update)
+                    dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update)
         else:
             return (dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update,
-                    dash.no_update, dash.no_update)
+                    dash.no_update, dash.no_update, dash.no_update)
+
+    # @app.callback(
+    #     Output('load_data_label', 'children'),
+    #     Input('total_table_store', 'data'),
+    #     Input('load_data_to_db', 'n_clicks')
+    # )
+    # def write_df_to_db(data, clicks):
+    #     if clicks:
+    #         df = pd.DataFrame(data)
+    #
+    #         msg = 'Таблица записана в базу данных'
+    #         return msg
+    #     return dash.no_update
