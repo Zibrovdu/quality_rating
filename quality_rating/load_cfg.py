@@ -17,6 +17,7 @@ db_name = cfg_parser['connect']['db']
 db_host = cfg_parser['connect']['host']
 db_port = cfg_parser['connect']['port']
 db_dialect = cfg_parser['connect']['dialect']
+db_schema = cfg_parser['connect']['schema']
 
 table = cfg_parser['table_names']['db_table']
 

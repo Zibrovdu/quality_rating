@@ -2,11 +2,12 @@ import dash
 from dash.dependencies import Output, Input, State
 
 import pandas as pd
+import datetime
 
 import quality_rating.decrypt as decrypt
 import quality_rating.encrypt as encrypt
 import quality_rating.processing as processing
-from quality_rating.load_cfg import config, write_config, conn_string, table
+from quality_rating.load_cfg import config, write_config, conn_string, table, db_schema
 
 
 def register_callbacks(app):
@@ -163,15 +164,40 @@ def register_callbacks(app):
             return (dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update,
                     dash.no_update, dash.no_update, dash.no_update)
 
-    # @app.callback(
-    #     Output('load_data_label', 'children'),
-    #     Input('total_table_store', 'data'),
-    #     Input('load_data_to_db', 'n_clicks')
-    # )
-    # def write_df_to_db(data, clicks):
-    #     if clicks:
-    #         df = pd.DataFrame(data)
-    #
-    #         msg = 'Таблица записана в базу данных'
-    #         return msg
-    #     return dash.no_update
+    @app.callback(
+        Output('load_data_label', 'children'),
+        Output('choose_db', 'options'),
+        Input('total_table_store', 'data'),
+        Input('load_data_to_db', 'n_clicks')
+    )
+    def write_df_to_db(data, clicks):
+        table_options = processing.load_db_dropdown(con=conn_string,
+                                                    schema=db_schema)
+        if clicks:
+            cur_date = datetime.date.today().strftime('%d_%m_%Y')
+            pd.DataFrame(data).to_sql(
+                '_'.join(['result', cur_date]),
+                con=conn_string,
+                schema=db_schema,
+                if_exists='replace',
+                index=False
+            )
+            msg = 'Таблица записана в базу данных'
+            table_options = processing.load_db_dropdown(con=conn_string,
+                                                        schema=db_schema)
+            return msg, table_options
+        return dash.no_update, table_options
+
+    @app.callback(
+        Output('db_table', 'data'),
+        Output('db_table', 'columns'),
+        Input('choose_db', 'value')
+    )
+    def load_table_from_db(table_name):
+        if table_name:
+            df = processing.load_result_from_db(table=table_name,
+                                                conn=conn_string,
+                                                schema=db_schema)
+            columns = [{'name': i, 'id': i} for i in df.columns]
+            return df.to_dict('records'), columns
+        return dash.no_update, dash.no_update

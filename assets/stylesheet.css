@@ -112,6 +112,7 @@ media screen and (max-width: 650px) {
 
 .export {
     font-size: 12px;
+    margin: 0px 0px 10px 1px;
     visibility: hidden;
 }
 
@@ -136,6 +137,7 @@ media screen and (max-width: 650px) {
     width: 98%;
     padding: 10px;
 }
+
 .table_staff {
     width: 50%;
     margin: auto;
@@ -146,6 +148,7 @@ media screen and (max-width: 650px) {
     color: #55761a;
     border: 1px solid #55761a;
     background-color: rgb(223, 228, 155);
+    margin: 0px -7px;
 }
 
 .btn_loaders:hover {
@@ -243,4 +246,26 @@ media screen and (max-width: 650px) {
     padding: 0px 0px 0px 60px;
     color: green;
     font-weight:bold;
+}
+
+.lbl_db {
+    font-size: 25px;
+}
+
+.div_lbl_db {
+    display: inline-block;
+    font-size: 15px;
+    padding: 25px 20px;
+}
+
+.div_dropdown_db {
+    display: inline-block;
+    width: 300px;
+    padding: 25px 20px;
+    margin: 0px 0px -34px 0px;
+}
+
+.table_all_1 {
+    width: 98%;
+    padding: 60px 10px;
 }

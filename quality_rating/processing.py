@@ -1,3 +1,4 @@
+import dash
 import pandas as pd
 import numpy as np
 
@@ -55,11 +56,9 @@ def load_df(df):
              'Плановое время выполнения', 'Просрочен крайний срок', 'Фактическое время выполнения', 'Код закрытия',
              'Описание решения', 'Кем решен (группа)', 'Кем решен (сотрудник)', 'Количество уточнений',
              'Количество возобновлений', 'Приоритет', 'Аналитические признаки', 'Статус', 'Причина ожидания',
-             'Кем решен']]
+             'Кем решен', 'Суммарное время реакции 1 линии.1', 'Суммарное время работы 1 линии.1']]
     df = df[(df['Тип'] != 'Проблема') & (df['Тип'] != 'Массовый инцидент')]
-    df = df[(df['Код закрытия'] != 'Дублирование') &
-            (df['Код закрытия'] != 'Неверное назначение') &
-            (df['Код закрытия'] != 'Отозвано Пользователем')]
+    df = df[(df['Код закрытия'] == 'Решено на 2-й линии')]
     df = df[df['Технический статус'] == 'Закрыт']
     df['Описание решения'] = df['Описание решения'].fillna('')
     df['del_col'] = df['Описание решения'].apply(lambda s: 1 if ('уточнение не предоставлено' in s.lower()) or
@@ -80,7 +79,6 @@ def set_styles(msg):
 
 
 def filter_region_person(df, person, region):
-
     if (person == 'Все пользователи' and region == 'Все регионы') or (not person and not region) or \
             (person == 'Все пользователи' and not region) or (region == 'Все регионы' and not person):
         person_options = [{'label': item, 'value': item} for item in np.sort(df['ФИО'].unique())]
@@ -123,3 +121,19 @@ def filter_region_person(df, person, region):
         regions_options.insert(0, dict(label='Все регионы', value='Все регионы'))
 
         return df, person_options, regions_options
+
+
+def load_result_from_db(table, conn, schema):
+    return pd.read_sql_table(table, con=conn, schema=schema)
+
+
+def load_db_dropdown(con, schema):
+    table_list = pd.read_sql(
+        f"""
+        SELECT DISTINCT table_name 
+        FROM information_schema.columns 
+        WHERE table_schema='{schema}'
+        """,
+        con=con)['table_name'].tolist()
+    opt = [{'label': 'Оценка от ' + i[-10:], 'value': i} for i in table_list]
+    return opt

@@ -39,6 +39,10 @@ def get_quantity_tasks(df, pers_code, limit):
         return len(df[df.person_code == pers_code]['Номер'].unique())
 
 
+def count_time(x):
+    return int(x[:x.find(':')]) + int(x[x.find(':')+1:])/60
+
+
 def data_table(data_df, staff_encrypt_df, filename):
     try:
         data_df['Описание'].fillna('Описание отсутствует', inplace=True)
@@ -47,6 +51,11 @@ def data_table(data_df, staff_encrypt_df, filename):
         data_df['Время выполнения'] = data_df['Время выполнения'].apply(lambda x: round(x.total_seconds()/3600))
         data_df['Кем решен (сотрудник)'].fillna('Отсутствует', inplace=True)
         data_df['Кем решен (сотрудник)'] = data_df['Кем решен (сотрудник)'].apply(lambda x: x.title())
+        data_df['Время решения из СУЭ, ч.'] = data_df[['Суммарное время реакции 1 линии.1',
+                                                  'Суммарное время работы 1 линии.1']].apply(
+            lambda row: count_time(row['Суммарное время работы 1 линии.1']) + count_time(
+                row['Суммарное время работы 1 линии.1']), axis=1)
+        data_df['Время решения из СУЭ, ч.'] = data_df['Время решения из СУЭ, ч.'].round(4)
 
         result_df = data_df.merge(staff_encrypt_df, left_on='Кем решен (сотрудник)', right_on='ФИО', how='left')
         lw.log_writer(log_msg=f'Файл "{filename}" успешно загружен')
@@ -148,7 +157,7 @@ def create_total_table(result_table, data_df):
 
     result_table = result_table.merge(data_df[['Номер', 'Описание', 'Сложность', 'Подсистема', 'Категория',
                                                'Описание решения', 'Количество уточнений', 'Количество возобновлений',
-                                               'Время выполнения']],
+                                               'Время выполнения', 'Время решения из СУЭ, ч.']],
                                       how='left',
                                       left_on='tasks_numbers',
                                       right_on='Номер')
