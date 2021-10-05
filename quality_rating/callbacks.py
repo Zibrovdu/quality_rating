@@ -44,9 +44,12 @@ def register_callbacks(app):
             if len(incoming_df) > 0:
                 filename_key_file = encrypt.write_key_file(staff_encrypt_df=staff_encrypt_df)
 
+                print(incoming_df.columns)
+
                 data_df = encrypt.data_table(data_df=incoming_df,
                                              staff_encrypt_df=staff_encrypt_df,
                                              filename=filename)[0]
+                print(data_df.columns)
 
                 msg = encrypt.data_table(data_df=incoming_df,
                                          staff_encrypt_df=staff_encrypt_df,
