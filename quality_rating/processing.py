@@ -4,7 +4,7 @@ import numpy as np
 
 
 def load_staff(table_name, connection_string):
-    df = pd.read_sql(f"SELECT fio, region from {table_name}", con=connection_string)
+    df = pd.read_sql(f"SELECT fio, region from {table_name} WHERE works_w_tasks = 'y'", con=connection_string)
     df.sort_values(['region', 'fio'], ascending=True, inplace=True)
     df.columns = ['ФИО', 'Регион']
     return df

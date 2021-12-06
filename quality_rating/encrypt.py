@@ -16,6 +16,7 @@ staff_info_df = processing.load_staff(table_name=table, connection_string=conn_s
 
 
 def parse_contents_encrypt(contents, filename):
+
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
     try:
@@ -182,7 +183,6 @@ def create_total_table(result_table, data_df):
 
 
 def get_difficult_level(df):
-    print(df.columns)
     df['Аналитические признаки'] = df['Аналитические признаки'].fillna('')
     df['Сложность'] = df['Аналитические признаки'].apply(lambda x: x.split(','))
     df['Сложность'] = df['Сложность'].apply(lambda row: [item for item in row if item.strip().isdigit()])
