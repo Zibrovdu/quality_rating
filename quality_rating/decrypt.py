@@ -66,7 +66,7 @@ def count_mean_difficult_level(df):
 
 def make_decrypted_table(mean_diff_level_df, decrypt_df):
     decrypt_df = decrypt_df[decrypt_df['Оценка'] != 0]
-    decrypt_df_pivot = decrypt_df.pivot_table(index=['ФИО'],
+    decrypt_df_pivot = decrypt_df.pivot_table(index=['ФИО', 'Регион сотрудника'],
                                               values=['Оценка'],
                                               aggfunc='mean')
 
