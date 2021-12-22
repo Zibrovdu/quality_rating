@@ -113,7 +113,7 @@ def serve_layout():
                             fullscreen=True,
                             color='#9db33e',
                             children=dcc.Store(
-                                id='memory_storage'
+                                id='encrypt_storage'
                             )
                         ),
                         html.Div([
@@ -212,6 +212,32 @@ def serve_layout():
                     ),
                     html.Br(),
                     html.Br(),
+                    html.Div([
+                        dcc.Dropdown(
+                            id='filter_query_total',
+                            options=filter_query_options,
+                            value=filter_query_options[0]['value'],
+                            clearable=False,
+                            style=dict(width='250px',
+                                       padding='0px 20px',
+                                       fontSize='16px')
+                        )
+                    ]),
+                    html.Br(),
+                    html.Br(),
+                    html.Div([
+                        dcc.Loading(
+                            id="loading-decrypt-store",
+                            type="cube",
+                            color='#9db33e',
+                            fullscreen=True,
+                            children=html.Div([
+                                dcc.Store(
+                                    id='decrypt_storage'
+                                ),
+                            ]),
+                        )
+                    ]),
                     html.Div([
                         dcc.Loading(
                             id="loading-2",

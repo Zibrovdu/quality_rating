@@ -11,7 +11,7 @@ from quality_rating.load_cfg import config, write_config, conn_string, table, db
 
 
 def register_callbacks(app):
-    @app.callback(Output('memory_storage', 'data'),
+    @app.callback(Output('encrypt_storage', 'data'),
                   Output('error_msg_encrypt', 'children'),
                   Output('error_msg_encrypt', 'style'),
                   Output('curr_tasks_input', 'value'),
@@ -40,6 +40,8 @@ def register_callbacks(app):
                                                          filename=filename)
 
             staff_encrypt_df = encrypt.staff_table(staff_df=encrypt.staff_info_df)
+
+            incoming_df = incoming_df[incoming_df['Кем решен (сотрудник)'].isin(staff_encrypt_df['ФИО'].unique())]
 
             if len(incoming_df) > 0:
                 filename_key_file = encrypt.write_key_file(staff_encrypt_df=staff_encrypt_df)
@@ -86,7 +88,7 @@ def register_callbacks(app):
     @app.callback(
         Output('table_encrypt', 'data'),
         Output('table_encrypt', 'columns'),
-        Input('memory_storage', 'data'),
+        Input('encrypt_storage', 'data'),
         Input('filter_query', 'value'),
     )
     def update_table(data, filter_region):
@@ -100,8 +102,7 @@ def register_callbacks(app):
                 return df.to_dict('records'), columns
         return dash.no_update, dash.no_update
 
-    @app.callback(Output('table_decrypt', 'data'),
-                  Output('table_decrypt', 'columns'),
+    @app.callback(Output('decrypt_storage', 'data'),
                   Output('error_msg', 'children'),
                   Output('error_msg', 'style'),
                   Output('person', 'options'),
@@ -147,7 +148,7 @@ def register_callbacks(app):
 
                 style = processing.set_styles(msg=msg)
 
-                return (decrypted_df.to_dict('records'), [{'name': i, 'id': i} for i in decrypted_df.columns], msg,
+                return (decrypted_df.to_dict('records'), msg,
                         style, options, total_df.to_dict('records'), [{'name': i, 'id': i} for i in total_df.columns],
                         regions, stored_df.to_dict('records'))
 
@@ -158,11 +159,28 @@ def register_callbacks(app):
 
             decrypted_df = processing.no_data()
 
-            return (decrypted_df.to_dict('records'), [{'name': i, 'id': i} for i in decrypted_df.columns], msg, style,
+            return (decrypted_df.to_dict('records'), msg, style,
                     dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update)
         else:
-            return (dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update,
+            return (dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update,
                     dash.no_update, dash.no_update, dash.no_update)
+
+    @app.callback(Output('table_decrypt', 'data'),
+                  Output('table_decrypt', 'columns'),
+                  Input('decrypt_storage', 'data'),
+                  Input('filter_query_total', 'value'),
+                  )
+    def upd_table_decrypt(data, filter_region):
+        if data:
+            decrypt_df = pd.DataFrame(data)
+            columns = [{'name': column, 'id': column} for column in decrypt_df.columns]
+            if filter_region == 'Все регионы':
+                return decrypt_df.to_dict('records'), columns
+            else:
+                decrypt_df = decrypt_df[decrypt_df['Регион сотрудника'] == filter_region]
+                return decrypt_df.to_dict('records'), columns
+        return dash.no_update, dash.no_update
+
 
     @app.callback(
         Output('load_data_label', 'children'),
