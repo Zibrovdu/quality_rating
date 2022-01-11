@@ -4,6 +4,7 @@ from dash.dependencies import Output, Input, State
 import pandas as pd
 import datetime
 
+import quality_rating as qr
 import quality_rating.decrypt as decrypt
 import quality_rating.encrypt as encrypt
 import quality_rating.processing as processing
@@ -181,7 +182,6 @@ def register_callbacks(app):
                 return decrypt_df.to_dict('records'), columns
         return dash.no_update, dash.no_update
 
-
     @app.callback(
         Output('load_data_label', 'children'),
         Output('choose_db', 'options'),
@@ -219,3 +219,48 @@ def register_callbacks(app):
             columns = [{'name': i, 'id': i} for i in df.columns]
             return df.to_dict('records'), columns
         return dash.no_update, dash.no_update
+
+    @app.callback(
+        Output('table_staff', 'data'),
+        Output('table_staff', 'columns'),
+        Input('filter_query_staff', 'value'),
+        Input('filter_query_works', 'value'),
+        Input('filter_query_tasks', 'value')
+    )
+    def filter_staff_table(region, state, work_tasks):
+        staff_df = qr.load_staff_table(table_name=table, connection_string=conn_string)
+        staff_columns = qr.set_staff_columns()
+
+        if region == 'Все' and state == 'Все' and work_tasks == 'Все':
+            return staff_df.to_dict('records'), staff_columns
+
+        if region != 'Все' and state != 'Все' and work_tasks != 'Все':
+            staff_df = staff_df[(staff_df[1] == region) & (staff_df[2] == state) & (staff_df[3] == work_tasks)]
+            return staff_df.to_dict('records'), staff_columns
+
+        if region == 'Все' and state != 'Все' and work_tasks != 'Все':
+            staff_df = staff_df[(staff_df[2] == state) & (staff_df[3] == work_tasks)]
+            return staff_df.to_dict('records'), staff_columns
+
+        if region != 'Все' and state == 'Все' and work_tasks != 'Все':
+            staff_df = staff_df[(staff_df[1] == region) & (staff_df[3] == work_tasks)]
+            return staff_df.to_dict('records'), staff_columns
+
+        if region != 'Все' and state != 'Все' and work_tasks == 'Все':
+            staff_df = staff_df[(staff_df[1] == region) & (staff_df[2] == state)]
+            return staff_df.to_dict('records'), staff_columns
+
+        if region == 'Все' and state == 'Все' and work_tasks != 'Все':
+            staff_df = staff_df[staff_df[3] == work_tasks]
+            return staff_df.to_dict('records'), staff_columns
+
+        if region == 'Все' and state != 'Все' and work_tasks == 'Все':
+            staff_df = staff_df[(staff_df[2] == state)]
+            return staff_df.to_dict('records'), staff_columns
+
+        if region != 'Все' and state == 'Все' and work_tasks == 'Все':
+            staff_df = staff_df[(staff_df[1] == region)]
+            return staff_df.to_dict('records'), staff_columns
+
+    return dash.no_update, dash.no_update
+

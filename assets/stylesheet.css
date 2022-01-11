@@ -139,8 +139,8 @@ media screen and (max-width: 650px) {
 }
 
 .table_staff {
-    width: 50%;
-    margin: auto;
+    width: 60%;
+    margin: 20px 20px;
 }
 
 .btn_loaders {
@@ -268,4 +268,33 @@ media screen and (max-width: 650px) {
 .table_all_1 {
     width: 98%;
     padding: 60px 10px;
+}
+
+.div_fiter_panel {
+    width: 300px;
+    display: inline-block;
+}
+
+.div_filer_panel_labels {
+    margin: 10px 25px;
+}
+
+.filter_panel_labels {
+    font-size: 25px;
+    color: #55761a
+}
+
+.div_main_filter_panel {
+    display: inline-block;
+    width: 75%;
+}
+
+.div_buttons_staff {
+    display: inline-block;
+    width: auto;
+}
+
+.btn_staff {
+    margin: 15px;
+    width: 91%;
 }

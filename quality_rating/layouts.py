@@ -2,6 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 
+import quality_rating as qr
 import quality_rating.processing as processing
 from quality_rating.load_cfg import table, conn_string, config
 
@@ -12,9 +13,23 @@ def serve_layout():
         connection_string=conn_string
     )
 
+    # staff_df = qr.load_staff_table(table_name=table, connection_string=conn_string)
+    # staff_columns = qr.set_staff_columns()
+
     filter_query_options = [{'label': i, 'value': i} for i in staff_oit_stsb_df['Регион'].unique()]
     filter_query_options.insert(0, dict(label='Все регионы',
                                         value='Все регионы'))
+
+    subs_options = [{'label': i, "value": i} for i in ['ПУНФА/ПУИО', 'ПУОТ', 'Администрирование', 'Командирование']]
+
+    filter_query_work = qr.get_filter_options(df=qr.load_staff_table(table_name=table, connection_string=conn_string),
+                                              filter_name='state')
+
+    filter_query_task = qr.get_filter_options(df=qr.load_staff_table(table_name=table, connection_string=conn_string),
+                                              filter_name='works_w_tasks')
+
+    filter_query_region = qr.get_filter_options(df=qr.load_staff_table(table_name=table, connection_string=conn_string),
+                                                filter_name='region')
 
     tab_selected_style = dict(backgroundColor='#dfe49b',
                               fontWeight='bold')
@@ -268,14 +283,100 @@ def serve_layout():
                 value='about',
                 children=[
                     html.Br(),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Label(
+                                    'Регион',
+                                    className='filter_panel_labels'
+                                )
+                            ],
+                                className='div_fiter_panel'
+                            ),
+                            html.Div([
+                                html.Label(
+                                    'Статус',
+                                    className='filter_panel_labels'
+                                )
+                            ],
+                                className='div_fiter_panel'
+                            ),
+                            html.Div([
+                                html.Label(
+                                    'Участие в оценке',
+                                    className='filter_panel_labels'
+                                )
+                            ],
+                                className='div_fiter_panel'
+                            )
+                        ],
+                            className='div_filer_panel_labels'
+                        ),
+                        html.Div([
+                            dcc.Dropdown(
+                                id='filter_query_staff',
+                                options=filter_query_region,
+                                value=filter_query_region[0]['value'],
+                                clearable=False,
+                                style=dict(width='250px',
+                                           padding='0px 20px',
+                                           fontSize='16px')
+                            )
+                        ], className='div_fiter_panel'),
+
+                        html.Div([
+                            dcc.Dropdown(
+                                id='filter_query_works',
+                                options=filter_query_work,
+                                value=filter_query_work[0]['value'],
+                                clearable=False,
+                                style=dict(width='250px',
+                                           padding='0px 20px',
+                                           fontSize='16px')
+                            )
+                        ], className='div_fiter_panel'),
+
+                        html.Div([
+                            dcc.Dropdown(
+                                id='filter_query_tasks',
+                                options=filter_query_task,
+                                value=filter_query_task[0]['value'],
+                                clearable=False,
+                                style=dict(width='250px',
+                                           padding='0px 20px',
+                                           fontSize='16px')
+                            )
+                        ], className='div_fiter_panel'),
+                    ],
+                        className='div_main_filter_panel'
+                    ),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.A(
+                                    'Добавление нового сотрудника',
+                                    href='#modal-3',
+
+                                    className='js-modal-open link btn_load'
+                                ),
+                            ], style=dict(margin='10px 10px')),
+                            html.Div([
+                                html.A(
+                                    'Изменить данные по сотруднику',
+                                    href='#modal-3',
+
+                                    className='js-modal-open link btn_load'
+                                ),
+                            ], style=dict(margin='35px 10px'),)
+                        ])
+                    ],
+                        className='div_buttons_staff'),
+
                     html.Br(),
                     html.Div([
                         dash_table.DataTable(
                             id='table_staff',
-                            data=staff_oit_stsb_df.to_dict('records'),
-                            columns=[
-                                {'name': i, 'id': i} for i in staff_oit_stsb_df.columns
-                            ],
+                            merge_duplicate_headers=True,
                             export_format='xlsx',
                             style_cell=dict(textAlign='center',
                                             whiteSpace='normal',
@@ -519,6 +620,111 @@ def serve_layout():
         ],
             id='modal-2',
             className='modal_about modal--xl'
+        ),
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Div([
+                        'Добавление нового сотрудника'
+                    ],
+                        className='modal__dialog-header-content'
+                    ),
+                    html.Div([
+                        html.Button([
+                            html.Span('x')
+                        ],
+                            className='js-modal-close modal__dialog-header-close-btn'
+                        )
+                    ],
+                        className='modal__dialog-header-close'
+                    )
+                ],
+                    className='modal__dialog-header'
+                ),
+                html.Div([
+                    html.Div([
+                        html.Div([
+                            html.Label('Введите ФИО сотрудника'),
+                            dcc.Input(id='new_staff_fio',
+                                      style=dict(width='350px',
+                                                 fontSize='16px')
+                                      ),
+                        ]),
+                        html.Br(),
+                        # html.Br(),
+                        html.Div([
+                            html.Label('Выберите регион сотрудника'),
+                            dcc.Dropdown(
+                                id='add_new_staff_region',
+                                options=filter_query_region[1:],
+                                value=filter_query_region[1]['value'],
+                                clearable=False,
+                                style=dict(width='350px',
+                                           fontSize='16px'))
+                        ]),
+                        html.Br(),
+                        # html.Br(),
+                        html.Div([
+                            html.Label('Статус сотрудника'),
+                            dcc.Dropdown(id='add_new_staff_work',
+                                         options=filter_query_work[1:],
+                                         value=filter_query_work[1]['value'],
+                                         clearable=False,
+                                         style=dict(width='350px',
+                                                    fontSize='16px')
+                                         )
+
+                        ]),
+                        html.Br(),
+                        # html.Br(),
+                        html.Div([
+                            html.Label('Участие в оценке качества'),
+                            dcc.Dropdown(
+                                id='add_new_staff_task',
+                                options=filter_query_task[1:],
+                                value=filter_query_task[2]['value'],
+                                clearable=False,
+                                style=dict(width='350px',
+                                           fontSize='16px')
+                            )
+                        ]),
+                        # html.Br(),
+                        html.Br(),
+                        html.Div([
+                            html.Label('Подсистема с которой работает сотрудник'),
+                            dcc.Dropdown(
+                                id='add_new_staff_subs',
+                                options=subs_options,
+                                # value=filter_query_task[2]['value'],
+                                clearable=False,
+                                style=dict(width='350px',
+                                           fontSize='16px')
+                            )
+                        ])
+
+                    ]),
+
+                ],
+                    className='modal__dialog-body'
+                ),
+                html.Div([
+                    html.Div([
+                        html.Button(
+                            'Закрыть',
+                            className='js-modal-close modal__dialog-footer-close-btn'
+                        )
+                    ],
+                        style=dict(display='inline-block')
+                    ),
+                ],
+                    className='modal__dialog-footer'
+                )
+            ],
+                className='modal__dialog'
+            )
+        ],
+            id='modal-3',
+            className='modal_about modal--z'
         ),
         html.Script(
             src='assets/js/main.js'
