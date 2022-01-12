@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 def load_staff_table(table_name, connection_string):
@@ -33,9 +34,32 @@ def get_filter_options(df, filter_name):
         filter_query_options = [{'label': i, 'value': i} for i in df[2].unique()]
     elif filter_name == 'works_w_tasks':
         filter_query_options = [{'label': i, 'value': i} for i in df[3].unique()]
+    elif filter_name == 'fio':
+        filter_query_options = [{'label': i, 'value': i} for i in df[0].unique()]
     else:
         filter_query_options = [{'label': i, 'value': i} for i in df[1].unique()]
     filter_query_options.insert(0, dict(label='Все', value='Все'))
 
     return filter_query_options
 
+
+def make_row(fio, region, work, task, subs):
+    if work == 'Работает':
+        work = 'y'
+    else:
+        work = 'n'
+    if task == 'Да':
+        task = 'y'
+    else:
+        task = 'n'
+    if subs == 'ПУНФА/ПУИО':
+        row = [fio, region, work, task, 1, np.nan, np.nan, np.nan]
+    elif subs == 'ПУОТ':
+        row = [fio, region, work, task, np.nan, 1, np.nan, np.nan]
+    elif subs == 'Администрирование':
+        row = [fio, region, work, task, np.nan, np.nan, 1, np.nan]
+    elif subs == 'Командирование':
+        row = [fio, region, work, task, np.nan, np.nan, np.nan, 1]
+    else:
+        row = [fio, region, work, task, np.nan, np.nan, np.nan, np.nan]
+    return row

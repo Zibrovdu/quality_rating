@@ -262,5 +262,86 @@ def register_callbacks(app):
             staff_df = staff_df[(staff_df[1] == region)]
             return staff_df.to_dict('records'), staff_columns
 
-    return dash.no_update, dash.no_update
+        return dash.no_update, dash.no_update
 
+    @app.callback(
+        Output('load_state', 'children'),
+        Output('load_state', 'style'),
+        Output('refresh_staff_table', 'href'),
+        Input('load_staff_to_db', 'n_clicks'),
+        Input('new_staff_fio', 'value'),
+        Input('add_new_staff_region', 'value'),
+        Input('add_new_staff_work', 'value'),
+        Input('add_new_staff_task', 'value'),
+        Input('add_new_staff_subs', 'value'),
+        prevent_initial_call=True,
+    )
+    def write_new_staff(n_clicks, fio, region, work, task, subs):
+        if n_clicks:
+            row = qr.make_row(fio=fio, region=region, work=work, task=task, subs=subs)
+
+            df = pd.DataFrame(columns=['fio', 'region', 'state', 'works_w_tasks', 'bgu', 'zkgu', 'admin', 'command'])
+            df.loc[0] = row
+            df.to_sql(table,
+                      con=conn_string,
+                      index=False,
+                      if_exists='append')
+            return 'Success', dict(color='green'), "/"
+
+    @app.callback(
+        Output('modify_staff_fio', 'value'),
+        Output('modify_staff_region', 'value'),
+        Output('modify_staff_work', 'value'),
+        Output('modify_staff_task', 'value'),
+        Output('modify_staff_subs', 'value'),
+        Input('list_staff_fio_modify', 'value')
+    )
+    def fill_form(fio):
+        df = qr.load_staff_table(table_name=table, connection_string=conn_string)
+        if fio:
+            print(fio)
+            print(df[df[0] == fio])
+            row = df[df[0] == fio].iloc[0].tolist()
+
+            subs_type = [index for index, element in enumerate(row[4:]) if element == 'Да']
+            if subs_type == [0]:
+                subs = 'ПУНФА/ПУИО'
+            elif subs_type == [1]:
+                subs = 'ПУОТ'
+            elif subs_type == [2]:
+                subs = 'Администрирование'
+            elif subs_type == [3]:
+                subs = 'Командирование'
+            else:
+                subs = ''
+            return row[0], row[1], row[2], row[3], subs
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
+
+    @app.callback(
+        Output('modify_state', 'children'),
+        Output('modify_state', 'style'),
+        Output('refresh_modify_staff_table', 'href'),
+        Input('list_staff_fio_modify', 'value'),
+        Input('modify_staff_to_db', 'n_clicks'),
+        Input('modify_staff_fio', 'value'),
+        Input('modify_staff_region', 'value'),
+        Input('modify_staff_work', 'value'),
+        Input('modify_staff_task', 'value'),
+        Input('modify_staff_subs', 'value'),
+        prevent_initial_call=True,
+    )
+    def modify_staff(fio_index, n_clicks, fio, region, work, task, subs):
+        if n_clicks and fio_index:
+            df = pd.read_sql(f"SELECT * from {table}", con=conn_string)
+            mask = df[df['fio'] == fio_index].index
+            row = qr.make_row(fio=fio, region=region, work=work, task=task, subs=subs)
+
+            df.loc[mask, df.columns] = row
+
+            df.to_sql(table,
+                      con=conn_string,
+                      index=False,
+                      if_exists='replace')
+
+            return 'Success', dict(color='green'), '/'
+        return dash.no_update, dash.no_update

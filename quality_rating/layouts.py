@@ -20,8 +20,6 @@ def serve_layout():
     filter_query_options.insert(0, dict(label='Все регионы',
                                         value='Все регионы'))
 
-    subs_options = [{'label': i, "value": i} for i in ['ПУНФА/ПУИО', 'ПУОТ', 'Администрирование', 'Командирование']]
-
     filter_query_work = qr.get_filter_options(df=qr.load_staff_table(table_name=table, connection_string=conn_string),
                                               filter_name='state')
 
@@ -30,6 +28,11 @@ def serve_layout():
 
     filter_query_region = qr.get_filter_options(df=qr.load_staff_table(table_name=table, connection_string=conn_string),
                                                 filter_name='region')
+
+    filter_query_fio = qr.get_filter_options(df=qr.load_staff_table(table_name=table, connection_string=conn_string),
+                                             filter_name='fio')
+
+    subs_options = [{'label': i, "value": i} for i in ['ПУНФА/ПУИО', 'ПУОТ', 'Администрирование', 'Командирование']]
 
     tab_selected_style = dict(backgroundColor='#dfe49b',
                               fontWeight='bold')
@@ -282,6 +285,10 @@ def serve_layout():
                 label='Сотрудники ОИТ СЦБ',
                 value='about',
                 children=[
+                    dcc.Location(id='refresh_staff_table',
+                                 refresh=True),
+                    dcc.Location(id='refresh_modify_staff_table',
+                                 refresh=True),
                     html.Br(),
                     html.Div([
                         html.Div([
@@ -363,11 +370,11 @@ def serve_layout():
                             html.Div([
                                 html.A(
                                     'Изменить данные по сотруднику',
-                                    href='#modal-3',
+                                    href='#modal-4',
 
                                     className='js-modal-open link btn_load'
                                 ),
-                            ], style=dict(margin='35px 10px'),)
+                            ], style=dict(margin='35px 10px'), )
                         ])
                     ],
                         className='div_buttons_staff'),
@@ -700,6 +707,11 @@ def serve_layout():
                                 style=dict(width='350px',
                                            fontSize='16px')
                             )
+                        ]),
+                        html.Div([
+                            html.Div([
+                                html.Span(id='load_state')
+                            ])
                         ])
 
                     ]),
@@ -708,6 +720,15 @@ def serve_layout():
                     className='modal__dialog-body'
                 ),
                 html.Div([
+                    html.Div([
+                        html.Button(
+                            'Сохранить',
+                            id='load_staff_to_db',
+                            className='btn_loaders'
+                        ),
+                    ],
+                        style=dict(display='inline-block')
+                    ),
                     html.Div([
                         html.Button(
                             'Закрыть',
@@ -724,6 +745,133 @@ def serve_layout():
             )
         ],
             id='modal-3',
+            className='modal_about modal--z'
+        ),
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Div([
+                        'Изменение данных по сотруднику'
+                    ],
+                        className='modal__dialog-header-content'
+                    ),
+                    html.Div([
+                        html.Button([
+                            html.Span('x')
+                        ],
+                            className='js-modal-close modal__dialog-header-close-btn'
+                        )
+                    ],
+                        className='modal__dialog-header-close'
+                    )
+                ],
+                    className='modal__dialog-header'
+                ),
+                html.Div([
+                    html.Div([
+                        html.Div([
+                            html.Label('Выберите сотрудника'),
+                            dcc.Dropdown(id='list_staff_fio_modify',
+                                         options=filter_query_fio[1:],
+                                         value='',
+                                         clearable=False,
+                                         searchable=False,
+                                         style=dict(width='350px',
+                                                    fontSize='16px')
+                                         ),
+                        ]),
+                        html.Br(),
+                        html.Div([
+                            html.Label('Введите ФИО сотрудника'),
+                            dcc.Input(id='modify_staff_fio',
+                                      style=dict(width='350px',
+                                                 fontSize='16px')
+                                      ),
+                        ]),
+                        html.Br(),
+                        html.Div([
+                            html.Label('Выберите регион сотрудника'),
+                            dcc.Dropdown(
+                                id='modify_staff_region',
+                                options=filter_query_region[1:],
+                                value='',
+                                clearable=False,
+                                style=dict(width='350px',
+                                           fontSize='16px'))
+                        ]),
+                        html.Br(),
+                        html.Div([
+                            html.Label('Статус сотрудника'),
+                            dcc.Dropdown(id='modify_staff_work',
+                                         options=filter_query_work[1:],
+                                         value='',
+                                         clearable=False,
+                                         style=dict(width='350px',
+                                                    fontSize='16px')
+                                         )
+
+                        ]),
+                        html.Br(),
+                        html.Div([
+                            html.Label('Участие в оценке качества'),
+                            dcc.Dropdown(
+                                id='modify_staff_task',
+                                options=filter_query_task[1:],
+                                value='',
+                                clearable=False,
+                                style=dict(width='350px',
+                                           fontSize='16px')
+                            )
+                        ]),
+                        html.Br(),
+                        html.Div([
+                            html.Label('Подсистема с которой работает сотрудник'),
+                            dcc.Dropdown(
+                                id='modify_staff_subs',
+                                options=subs_options,
+                                value='',
+                                clearable=False,
+                                style=dict(width='350px',
+                                           fontSize='16px')
+                            )
+                        ]),
+                        html.Div([
+                            html.Div([
+                                html.Span(id='modify_state')
+                            ])
+                        ])
+
+                    ]),
+
+                ],
+                    className='modal__dialog-body'
+                ),
+                html.Div([
+                    html.Div([
+                        html.Button(
+                            'Сохранить',
+                            id='modify_staff_to_db',
+                            className='btn_loaders'
+                        ),
+                    ],
+                        style=dict(display='inline-block')
+                    ),
+                    html.Div([
+                        html.Button(
+                            'Закрыть',
+                            className='js-modal-close modal__dialog-footer-close-btn'
+                        )
+                    ],
+                        style=dict(display='inline-block')
+                    ),
+                ],
+                    className='modal__dialog-footer'
+                )
+            ],
+                className='modal__dialog'
+            )
+        ],
+            id='modal-4',
             className='modal_about modal--z'
         ),
         html.Script(
