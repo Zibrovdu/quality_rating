@@ -160,11 +160,11 @@ def register_callbacks(app):
 
             decrypted_df = processing.no_data()
 
-            return (decrypted_df.to_dict('records'), msg, style,
-                    dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update)
+            return (decrypted_df.to_dict('records'), msg, style, dash.no_update, dash.no_update, dash.no_update,
+                    dash.no_update, dash.no_update)
         else:
-            return (dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update,
-                    dash.no_update, dash.no_update, dash.no_update)
+            return (dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update,
+                    dash.no_update, dash.no_update)
 
     @app.callback(Output('table_decrypt', 'data'),
                   Output('table_decrypt', 'columns'),
@@ -287,6 +287,7 @@ def register_callbacks(app):
                       index=False,
                       if_exists='append')
             return 'Success', dict(color='green'), "/"
+        return dash.no_update, dash.no_update, dash.no_update
 
     @app.callback(
         Output('modify_staff_fio', 'value'),
@@ -299,8 +300,6 @@ def register_callbacks(app):
     def fill_form(fio):
         df = qr.load_staff_table(table_name=table, connection_string=conn_string)
         if fio:
-            print(fio)
-            print(df[df[0] == fio])
             row = df[df[0] == fio].iloc[0].tolist()
 
             subs_type = [index for index, element in enumerate(row[4:]) if element == 'Да']

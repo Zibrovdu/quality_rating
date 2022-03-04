@@ -10,15 +10,10 @@ from quality_rating.load_cfg import table, conn_string, config
 def serve_layout():
     staff_oit_stsb_df = processing.load_staff(
         table_name=table,
-        connection_string=conn_string
-    )
-
-    # staff_df = qr.load_staff_table(table_name=table, connection_string=conn_string)
-    # staff_columns = qr.set_staff_columns()
+        connection_string=conn_string)
 
     filter_query_options = [{'label': i, 'value': i} for i in staff_oit_stsb_df['Регион'].unique()]
-    filter_query_options.insert(0, dict(label='Все регионы',
-                                        value='Все регионы'))
+    filter_query_options.insert(0, dict(label='Все регионы', value='Все регионы'))
 
     filter_query_work = qr.get_filter_options(df=qr.load_staff_table(table_name=table, connection_string=conn_string),
                                               filter_name='state')
@@ -658,7 +653,6 @@ def serve_layout():
                                       ),
                         ]),
                         html.Br(),
-                        # html.Br(),
                         html.Div([
                             html.Label('Выберите регион сотрудника'),
                             dcc.Dropdown(
@@ -670,7 +664,6 @@ def serve_layout():
                                            fontSize='16px'))
                         ]),
                         html.Br(),
-                        # html.Br(),
                         html.Div([
                             html.Label('Статус сотрудника'),
                             dcc.Dropdown(id='add_new_staff_work',
@@ -683,7 +676,6 @@ def serve_layout():
 
                         ]),
                         html.Br(),
-                        # html.Br(),
                         html.Div([
                             html.Label('Участие в оценке качества'),
                             dcc.Dropdown(
@@ -695,14 +687,12 @@ def serve_layout():
                                            fontSize='16px')
                             )
                         ]),
-                        # html.Br(),
                         html.Br(),
                         html.Div([
                             html.Label('Подсистема с которой работает сотрудник'),
                             dcc.Dropdown(
                                 id='add_new_staff_subs',
                                 options=subs_options,
-                                # value=filter_query_task[2]['value'],
                                 clearable=False,
                                 style=dict(width='350px',
                                            fontSize='16px')

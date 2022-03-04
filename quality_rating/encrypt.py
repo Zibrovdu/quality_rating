@@ -140,11 +140,6 @@ def transform_result_table(filename_key_file, result_table, staff_df):
 
     df['Проверяющий сотрудник'] = ''
 
-    # staff_regions_dict = dict()
-    # for i in list(staff_df['Регион'].unique()):
-    #     staff_regions_dict[i] = [x for x in staff_df[staff_df['Регион'] == i]['ФИО'].unique()]
-    # df['Проверяющий сотрудник'] = df['Проверяющий регион'].apply(lambda x: random.choice(staff_regions_dict[x]))
-
     return df
 
 
